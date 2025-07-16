@@ -19,14 +19,14 @@ export async function GET(
         creator: {
           select: {
             name: true,
-            email: true
-          }
+            email: true,
+          },
         },
         departments: {
           select: {
             id: true,
-            name: true
-          }
+            name: true,
+          },
         },
         participants: {
           include: {
@@ -34,39 +34,39 @@ export async function GET(
               select: {
                 id: true,
                 name: true,
-                email: true
-              }
-            }
-          }
+                email: true,
+              },
+            },
+          },
         },
         tasks: {
           include: {
             department: {
               select: {
-                name: true
-              }
+                name: true,
+              },
             },
             creator: {
               select: {
-                name: true
-              }
+                name: true,
+              },
             },
             assignee: {
               select: {
                 id: true,
                 name: true,
-                email: true
-              }
-            }
-          }
+                email: true,
+              },
+            },
+          },
         },
         _count: {
           select: {
             tasks: true,
-            participants: true
-          }
-        }
-      }
+            participants: true,
+          },
+        },
+      },
     })
 
     if (!project) {
@@ -76,7 +76,10 @@ export async function GET(
     return NextResponse.json(project)
   } catch (error) {
     console.error('Error fetching project:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 
@@ -90,7 +93,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { name, description, status, estimatedStartDate, estimatedEndDate, departmentIds } = await request.json()
+    const {
+      name,
+      description,
+      status,
+      estimatedStartDate,
+      estimatedEndDate,
+      departmentIds,
+    } = await request.json()
 
     const project = await prisma.project.update({
       where: { id: params.id },
@@ -102,35 +112,38 @@ export async function PUT(
         estimatedEndDate: new Date(estimatedEndDate),
         departments: {
           set: [], // Clear existing connections
-          connect: departmentIds.map((id: string) => ({ id }))
-        }
+          connect: departmentIds.map((id: string) => ({ id })),
+        },
       },
       include: {
         creator: {
           select: {
             name: true,
-            email: true
-          }
+            email: true,
+          },
         },
         departments: {
           select: {
             id: true,
-            name: true
-          }
+            name: true,
+          },
         },
         _count: {
           select: {
             tasks: true,
-            participants: true
-          }
-        }
-      }
+            participants: true,
+          },
+        },
+      },
     })
 
     return NextResponse.json(project)
   } catch (error) {
     console.error('Error updating project:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 
@@ -145,12 +158,15 @@ export async function DELETE(
     }
 
     await prisma.project.delete({
-      where: { id: params.id }
+      where: { id: params.id },
     })
 
     return NextResponse.json({ message: 'Project deleted successfully' })
   } catch (error) {
     console.error('Error deleting project:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }

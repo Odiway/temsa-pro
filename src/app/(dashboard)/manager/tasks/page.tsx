@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { CheckSquare, Plus, Edit, Trash2, Calendar, User, AlertCircle } from 'lucide-react';
+import { CheckSquare, Plus, Edit, Trash2, Calendar, User, AlertCircle, MessageSquare, Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -43,6 +43,33 @@ interface Task {
   endDate?: string;
   departmentId: string;
   createdAt: string;
+  phases?: TaskPhase[];
+  feedbacks?: Feedback[];
+}
+
+interface TaskPhase {
+  id: string;
+  name: string;
+  description?: string;
+  status: string;
+  order: number;
+  estimatedTime?: number;
+  actualTime?: number;
+  startDate?: string;
+  endDate?: string;
+  assignedToId?: string;
+  assignedTo?: { name: string };
+}
+
+interface Feedback {
+  id: string;
+  message: string;
+  status: string;
+  priority: string;
+  type: string;
+  submittedBy: { name: string; email: string };
+  createdAt: string;
+  reviewedAt?: string;
 }
 
 interface Project {
@@ -78,6 +105,9 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+  const [selectedTaskForPhases, setSelectedTaskForPhases] = useState<string | null>(null);
+  const [selectedTaskForFeedback, setSelectedTaskForFeedback] = useState<string | null>(null);
   
   // Add controlled state for Select components
   const [selectedProject, setSelectedProject] = useState<string>('');
@@ -182,6 +212,20 @@ export default function TasksPage() {
       const url = editingTask ? `/api/tasks/${editingTask.id}` : '/api/tasks';
       const method = editingTask ? 'PUT' : 'POST';
       
+      // Ensure we have a valid departmentId
+      let departmentId = editingTask?.departmentId || session?.user?.departmentId;
+      
+      // If we still don't have a departmentId, try to get the first available department
+      if (!departmentId && projects.length > 0 && data.projectId) {
+        const selectedProject = projects.find(p => p.id === data.projectId);
+        departmentId = selectedProject?.department?.id;
+      }
+      
+      if (!departmentId) {
+        toast.error(t('errors.noDepartmentSelected'));
+        return;
+      }
+      
       // Transform the data to match API expectations
       const apiData = {
         title: data.title,
@@ -191,8 +235,7 @@ export default function TasksPage() {
         projectId: data.projectId,
         assigneeId: data.assignedToId, // Transform assignedToId to assigneeId for API
         endDate: data.endDate,
-        // Use the existing departmentId if editing, or use IT department as default
-        departmentId: editingTask?.departmentId || "af5ddff6-cf78-4b3b-8819-2b9bb3a4a979" // IT Department ID
+        departmentId: departmentId
       };
       
       console.log('Submitting data:', apiData);
@@ -264,6 +307,66 @@ export default function TasksPage() {
 
   const isOverdue = (endDate: string) => {
     return new Date(endDate) < new Date() && new Date(endDate).toDateString() !== new Date().toDateString();
+  };
+
+  const toggleTaskExpansion = (taskId: string) => {
+    const newExpanded = new Set(expandedTasks);
+    if (newExpanded.has(taskId)) {
+      newExpanded.delete(taskId);
+    } else {
+      newExpanded.add(taskId);
+    }
+    setExpandedTasks(newExpanded);
+  };
+
+  const fetchTaskPhases = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}/phases`);
+      if (response.ok) {
+        const phases = await response.json();
+        // Update the task with phases
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === taskId ? { ...task, phases } : task
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching task phases:', error);
+    }
+  };
+
+  const fetchTaskFeedbacks = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}/feedbacks`);
+      if (response.ok) {
+        const feedbacks = await response.json();
+        // Update the task with feedbacks
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === taskId ? { ...task, feedbacks } : task
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching task feedbacks:', error);
+    }
+  };
+
+  const handleViewPhases = async (taskId: string) => {
+    if (!expandedTasks.has(taskId)) {
+      await fetchTaskPhases(taskId);
+    }
+    setSelectedTaskForPhases(taskId);
+    toggleTaskExpansion(taskId);
+  };
+
+  const handleViewFeedbacks = async (taskId: string) => {
+    if (!expandedTasks.has(taskId)) {
+      await fetchTaskFeedbacks(taskId);
+    }
+    setSelectedTaskForFeedback(taskId);
+    toggleTaskExpansion(taskId);
   };
 
   if (status === 'loading' || loading) {
@@ -435,114 +538,6 @@ export default function TasksPage() {
           </Dialog>
         </div>
       </div>
-                <Input id="title" {...register('title')} />
-                {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-              </div>
-              
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Input id="description" {...register('description')} />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="project">Project</Label>
-                  <select
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={selectedProject}
-                    onChange={(e) => {
-                      setSelectedProject(e.target.value);
-                      setValue('projectId', e.target.value);
-                    }}
-                  >
-                    <option value="">Select project</option>
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name} {project.department?.name ? `(${project.department.name})` : ''}
-                      </option>
-                    ))}
-                  </select>
-                  {projects.length === 0 && <p className="text-sm text-gray-500">No projects available</p>}
-                  {errors.projectId && <p className="text-red-500 text-sm">{errors.projectId.message}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="assignedTo">Assigned To</Label>
-                  <select
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={selectedUser}
-                    onChange={(e) => {
-                      setSelectedUser(e.target.value);
-                      setValue('assignedToId', e.target.value);
-                    }}
-                  >
-                    <option value="">Select user</option>
-                    <option value="d9d95263-5faa-49b6-9379-e06f94c610d9">Admin User (admin@temsafy.com)</option>
-                    <option value="17f9666e-df8d-48e6-9ed8-9b0f1f41911c">John Manager (manager@temsafy.com)</option>
-                    <option value="9dea7b86-faa8-4314-8350-9245b94c1ea6">Alice Field (alice@temsafy.com)</option>
-                    <option value="bebb313e-c8cb-436c-af30-68668c2c3dde">Bob Worker (bob@temsafy.com)</option>
-                    <option value="8cce5f2b-fb0b-4afa-b74b-a981a1430ec5">Sarah Department Head (sarah@temsafy.com)</option>
-                    {users.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name} ({user.email})
-                      </option>
-                    ))}
-                  </select>
-                  {users.length === 0 && <p className="text-sm text-gray-500">Loading users... ({users.length} users loaded)</p>}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <select
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={selectedStatus}
-                    onChange={(e) => {
-                      setSelectedStatus(e.target.value);
-                      setValue('status', e.target.value as any);
-                    }}
-                  >
-                    <option value="PENDING">Pending</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="COMPLETED">Completed</option>
-                  </select>
-                  {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="priority">Priority</Label>
-                  <select
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={selectedPriority}
-                    onChange={(e) => {
-                      setSelectedPriority(e.target.value);
-                      setValue('priority', e.target.value as any);
-                    }}
-                  >
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="CRITICAL">Critical</option>
-                  </select>
-                  {errors.priority && <p className="text-red-500 text-sm">{errors.priority.message}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="endDate">Due Date</Label>
-                  <Input id="endDate" type="date" {...register('endDate')} />
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingTask ? 'Update' : 'Create'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tasks.map((task) => (
@@ -557,6 +552,22 @@ export default function TasksPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    onClick={() => handleViewPhases(task.id)}
+                    title={t('tasks.taskPhases')}
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleViewFeedbacks(task.id)}
+                    title={t('tasks.feedbacks')}
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={() => handleEdit(task)}
                   >
                     <Edit className="h-4 w-4" />
@@ -567,6 +578,16 @@ export default function TasksPage() {
                     onClick={() => handleDelete(task.id)}
                   >
                     <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => toggleTaskExpansion(task.id)}
+                  >
+                    {expandedTasks.has(task.id) ? 
+                      <ChevronUp className="h-4 w-4" /> : 
+                      <ChevronDown className="h-4 w-4" />
+                    }
                   </Button>
                 </div>
               </CardTitle>
@@ -614,10 +635,107 @@ export default function TasksPage() {
                 )}
 
                 <div className="text-xs text-muted-foreground">
-                  Created: {new Date(task.createdAt).toLocaleDateString()}
+                  {t('tasks.createdAt')}: {new Date(task.createdAt).toLocaleDateString()}
                 </div>
               </div>
             </CardContent>
+            
+            {/* Expanded content for phases and feedbacks */}
+            {expandedTasks.has(task.id) && (
+              <CardContent className="pt-0 border-t">
+                {selectedTaskForPhases === task.id && (
+                  <div className="mt-4">
+                    <h4 className="font-semibold mb-3 flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      {t('tasks.taskPhases')}
+                    </h4>
+                    {task.phases && task.phases.length > 0 ? (
+                      <div className="space-y-2">
+                        {task.phases.sort((a, b) => a.order - b.order).map((phase) => (
+                          <div key={phase.id} className="border rounded p-3 bg-gray-50">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h5 className="font-medium">{phase.name}</h5>
+                                {phase.description && (
+                                  <p className="text-sm text-gray-600">{phase.description}</p>
+                                )}
+                              </div>
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                phase.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                                phase.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {t(`taskPhaseStatus.${phase.status}`)}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 text-xs text-gray-600">
+                              {phase.estimatedTime && (
+                                <div>{t('tasks.estimatedTime')}: {phase.estimatedTime}h</div>
+                              )}
+                              {phase.actualTime && (
+                                <div>{t('tasks.actualTime')}: {phase.actualTime}h</div>
+                              )}
+                              {phase.assignedTo && (
+                                <div>{t('tasks.assignedTo')}: {phase.assignedTo.name}</div>
+                              )}
+                              {phase.endDate && (
+                                <div>{t('tasks.dueDate')}: {new Date(phase.endDate).toLocaleDateString()}</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">{t('tasks.noPhases')}</p>
+                    )}
+                  </div>
+                )}
+                
+                {selectedTaskForFeedback === task.id && (
+                  <div className="mt-4">
+                    <h4 className="font-semibold mb-3 flex items-center">
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      {t('tasks.feedbacks')}
+                    </h4>
+                    {task.feedbacks && task.feedbacks.length > 0 ? (
+                      <div className="space-y-3">
+                        {task.feedbacks.map((feedback) => (
+                          <div key={feedback.id} className="border rounded p-3 bg-blue-50">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-medium">{feedback.submittedBy.name}</span>
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  feedback.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
+                                  feedback.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-green-100 text-green-800'
+                                }`}>
+                                  {t(`feedbackPriority.${feedback.priority}`)}
+                                </span>
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  feedback.status === 'REVIEWED' ? 'bg-green-100 text-green-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {t(`feedbackStatus.${feedback.status}`)}
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {new Date(feedback.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <p className="text-sm mb-2">{feedback.message}</p>
+                            <div className="text-xs text-gray-600">
+                              {t('feedback.type')}: {t(`feedbackType.${feedback.type}`)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">{t('tasks.noFeedbacks')}</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            )}
           </Card>
         ))}
       </div>

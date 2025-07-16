@@ -1,125 +1,45 @@
-// Turkish translations for TemSafy Pro
-export const translations = {
-  // Common terms
-  common: {
+const translations = {
+  // General
+  general: {
+    loading: 'Yükleniyor...',
     save: 'Kaydet',
     cancel: 'İptal',
     delete: 'Sil',
     edit: 'Düzenle',
     add: 'Ekle',
-    create: 'Oluştur',
     update: 'Güncelle',
+    create: 'Oluştur',
+    view: 'Görüntüle',
+    back: 'Geri',
     search: 'Ara',
     filter: 'Filtrele',
-    loading: 'Yükleniyor...',
-    success: 'Başarılı',
-    error: 'Hata',
-    warning: 'Uyarı',
-    info: 'Bilgi',
-    confirm: 'Onayla',
-    close: 'Kapat',
-    back: 'Geri',
-    next: 'İleri',
-    previous: 'Önceki',
-    submit: 'Gönder',
-    reset: 'Sıfırla',
     clear: 'Temizle',
-    view: 'Görüntüle',
-    download: 'İndir',
-    upload: 'Yükle',
+    close: 'Kapat',
     yes: 'Evet',
     no: 'Hayır',
-    none: 'Yok',
-    actions: 'İşlemler',
-    options: 'Seçenekler',
-    settings: 'Ayarlar',
-    created: 'Oluşturuldu',
-    viewCalendar: 'Takvimi Görüntüle'
+    confirm: 'Onayla',
+    warning: 'Uyarı',
+    error: 'Hata',
+    success: 'Başarılı',
+    name: 'Ad',
+    description: 'Açıklama',
+    title: 'Başlık',
+    status: 'Durum',
+    priority: 'Öncelik',
+    type: 'Tür'
   },
 
-  // Authentication
+  // Auth
   auth: {
-    login: 'Giriş Yap',
-    logout: 'Çıkış Yap',
+    signIn: 'Giriş Yap',
+    signOut: 'Çıkış Yap',
     email: 'E-posta',
     password: 'Şifre',
-    forgotPassword: 'Şifremi Unuttum',
-    signIn: 'Oturum Aç',
-    signOut: 'Oturum Kapat',
-    welcome: 'Hoş Geldiniz',
-    unauthorized: 'Yetkisiz Erişim',
-    invalidCredentials: 'Geçersiz giriş bilgileri',
-    sessionExpired: 'Oturum süresi doldu'
+    login: 'Giriş',
+    welcome: 'Hoş geldiniz'
   },
 
-  // Real-time synchronization
-  sync: {
-    title: 'Senkronizasyon Durumu',
-    status: 'Durum',
-    connected: 'Bağlı',
-    disconnected: 'Bağlantı Kesildi',
-    syncing: 'Senkronize Ediliyor',
-    error: 'Hata',
-    justNow: 'Şimdi',
-    minutesAgo: 'dakika önce',
-    hoursAgo: 'saat önce',
-    lastUpdate: 'Son Güncelleme',
-    errorMessage: 'Hata Mesajı',
-    connectedDetails: 'Sistem gerçek zamanlı olarak senkronize ediliyor',
-    disconnectedDetails: 'Bağlantı kesildi, lütfen sayfayı yenileyin',
-    syncingDetails: 'Veriler güncelleniyor...',
-    errorDetails: 'Senkronizasyon hatası oluştu',
-  },
-
-  // Notifications
-  notifications: {
-    title: 'Bildirimler',
-    noNotifications: 'Bildirim bulunmuyor',
-    markAsRead: 'Okundu olarak işaretle',
-    markAllAsRead: 'Tümünü okundu olarak işaretle',
-    deleteNotification: 'Bildirimi sil',
-    newNotification: 'Yeni bildirim',
-    projectCreated: 'Yeni proje oluşturuldu',
-    projectUpdated: 'Proje güncellendi',
-    projectDeleted: 'Proje silindi',
-    projectAssigned: 'Projeye atandınız',
-    taskCreated: 'Yeni görev oluşturuldu',
-    taskUpdated: 'Görev güncellendi',
-    taskDeleted: 'Görev silindi',
-    taskAssigned: 'Size yeni görev atandı',
-    userCreated: 'Yeni kullanıcı eklendi',
-    userUpdated: 'Kullanıcı güncellendi',
-    userDeleted: 'Kullanıcı silindi',
-    userAssigned: 'Kullanıcı atandı',
-    departmentCreated: 'Yeni departman oluşturuldu',
-    departmentUpdated: 'Departman güncellendi',
-    departmentDeleted: 'Departman silindi',
-    departmentAssigned: 'Departmana atandınız'
-  },
-
-  // Teams
-  teams: {
-    title: 'Takım Yönetimi',
-    team: 'Takım',
-    teams: 'Takımlar',
-    manage: 'Takımı Yönet',
-    teamMembers: 'Takım Üyeleri',
-    addMember: 'Üye Ekle',
-    removeMember: 'Üye Çıkar'
-  },
-
-  // User roles
-  roles: {
-    ADMIN: 'Yönetici',
-    MANAGER: 'Müdür',
-    DEPARTMENT: 'Departman Sorumlusu',
-    FIELD: 'Saha Çalışanı',
-    // Alternative naming
-    DEPARTMENT_HEAD: 'Departman Sorumlusu',
-    FIELD_WORKER: 'Saha Çalışanı'
-  },
-
-  // User management
+  // Users
   users: {
     title: 'Kullanıcı Yönetimi',
     user: 'Kullanıcı',
@@ -127,89 +47,29 @@ export const translations = {
     addUser: 'Kullanıcı Ekle',
     editUser: 'Kullanıcı Düzenle',
     deleteUser: 'Kullanıcı Sil',
-    userDetails: 'Kullanıcı Detayları',
-    createUser: 'Yeni Kullanıcı Oluştur',
-    name: 'Ad Soyad',
+    firstName: 'Ad',
+    lastName: 'Soyad',
     email: 'E-posta',
+    phone: 'Telefon',
     role: 'Rol',
-    department: 'Departman',
-    capacity: 'Kapasite',
-    createdAt: 'Oluşturulma Tarihi',
-    updatedAt: 'Güncellenme Tarihi',
-    status: 'Durum',
-    active: 'Aktif',
-    inactive: 'Pasif',
-    userCreated: 'Kullanıcı başarıyla oluşturuldu',
-    userUpdated: 'Kullanıcı başarıyla güncellendi',
-    userDeleted: 'Kullanıcı başarıyla silindi',
-    userExists: 'Bu e-posta adresi zaten kullanımda',
-    selectDepartment: 'Departman Seçin',
-    selectRole: 'Rol Seçin'
+    department: 'Departman'
   },
 
   // Projects
   projects: {
     title: 'Proje Yönetimi',
-    description: 'Projeleri yönetin ve ilerlemeyi takip edin',
     project: 'Proje',
     projects: 'Projeler',
     addProject: 'Proje Ekle',
     editProject: 'Proje Düzenle',
     deleteProject: 'Proje Sil',
     createProject: 'Yeni Proje Oluştur',
-    projectDetails: 'Proje Detayları',
-    name: 'Proje Adı',
-    projectDescription: 'Açıklama',
-    status: 'Durum',
-    startDate: 'Başlangıç Tarihi',
-    endDate: 'Bitiş Tarihi',
-    estimatedStartDate: 'Tahmini Başlangıç Tarihi',
-    estimatedEndDate: 'Tahmini Bitiş Tarihi',
-    actualStartDate: 'Gerçek Başlangıç Tarihi',
-    actualEndDate: 'Gerçek Bitiş Tarihi',
-    creator: 'Oluşturan',
-    departments: 'Departmanlar',
-    participants: 'Katılımcılar',
-    tasks: 'Görevler',
-    phases: 'Aşamalar',
-    noProjects: 'Proje bulunamadı',
-    createFirstProject: 'İlk projenizi oluşturarak başlayın.',
-    confirmDelete: 'Bu projeyi silmek istediğinizden emin misiniz?',
-    calculateDeadline: 'Tarih Hesapla',
-    deadlineCalculator: 'Tarih Hesaplayıcısı',
+    projectName: 'Proje Adı',
+    projectDescription: 'Proje Açıklaması',
+    projectManager: 'Proje Yöneticisi',
     projectCreated: 'Proje başarıyla oluşturuldu',
     projectUpdated: 'Proje başarıyla güncellendi',
     projectDeleted: 'Proje başarıyla silindi'
-  },
-
-  // Project status
-  projectStatus: {
-    DRAFT: 'Taslak',
-    PLANNING: 'Planlama',
-    ACTIVE: 'Aktif',
-    COMPLETED: 'Tamamlandı',
-    CANCELLED: 'İptal Edildi'
-  },
-
-  // Dashboard
-  dashboard: {
-    title: 'Kontrol Paneli',
-    managerTitle: 'Yönetici Kontrol Paneli',
-    fieldTitle: 'Saha Çalışanı Kontrol Paneli',
-    departmentTitle: 'Departman Kontrol Paneli',
-    welcome: 'Hoş geldiniz',
-    totalUsers: 'Toplam Kullanıcılar',
-    activeUsers: 'Aktif kullanıcılar',
-    departments: 'Departmanlar',
-    withActiveProjects: 'aktif projeli',
-    active: 'aktif',
-    completed: 'tamamlandı',
-    pending: 'bekliyor',
-    overdue: 'gecikmiş',
-    teamWorkload: 'Takım İş Yükü Özeti',
-    viewDetails: 'Detayları Görüntüle',
-    quickActions: 'Hızlı İşlemler',
-    failedToLoad: 'Kontrol paneli verileri yüklenemedi.'
   },
 
   // Tasks
@@ -217,52 +77,17 @@ export const translations = {
     title: 'Görev Yönetimi',
     task: 'Görev',
     tasks: 'Görevler',
-    myTasks: 'Görevlerim',
-    fieldDescription: 'Atanmış görev aşamalarınız ve mevcut ilerleme',
     addTask: 'Görev Ekle',
     editTask: 'Görev Düzenle',
     deleteTask: 'Görev Sil',
     createTask: 'Yeni Görev Oluştur',
-    taskDetails: 'Görev Detayları',
     taskTitle: 'Görev Başlığı',
-    description: 'Açıklama',
-    status: 'Durum',
-    priority: 'Öncelik',
-    assignedTo: 'Atanan Kişi',
-    project: 'Proje',
-    dueDate: 'Bitiş Tarihi',
+    taskDescription: 'Görev Açıklaması',
+    assignedTo: 'Atanan',
+    dueDate: 'Son Tarih',
     startDate: 'Başlangıç Tarihi',
     endDate: 'Bitiş Tarihi',
-    estimatedHours: 'Tahmini Saat',
-    actualHours: 'Gerçek Saat',
-    progress: 'İlerleme',
-    notes: 'Notlar',
-    attachments: 'Ekler',
-    comments: 'Yorumlar',
-    noTasks: 'Görev bulunamadı',
-    createFirstTask: 'İlk görevinizi oluşturarak başlayın.',
-    confirmDelete: 'Bu görevi silmek istediğinizden emin misiniz?',
-    taskCreated: 'Görev başarıyla oluşturuldu',
-    taskUpdated: 'Görev başarıyla güncellendi',
-    taskDeleted: 'Görev başarıyla silindi'
-  },
-    addTask: 'Görev Ekle',
-    editTask: 'Görev Düzenle',
-    deleteTask: 'Görev Sil',
-    createTask: 'Yeni Görev Oluştur',
-    taskDetails: 'Görev Detayları',
-    taskTitle: 'Görev Başlığı',
-    description: 'Açıklama',
-    status: 'Durum',
-    priority: 'Öncelik',
-    assignee: 'Atanan Kişi',
     estimatedHours: 'Tahmini Süre (Saat)',
-    actualHours: 'Gerçek Süre (Saat)',
-    startDate: 'Başlangıç Tarihi',
-    endDate: 'Bitiş Tarihi',
-    project: 'Proje',
-    department: 'Departman',
-    phases: 'Aşamalar',
     taskCreated: 'Görev başarıyla oluşturuldu',
     taskUpdated: 'Görev başarıyla güncellendi',
     taskDeleted: 'Görev başarıyla silindi'
@@ -276,12 +101,83 @@ export const translations = {
     CANCELLED: 'İptal Edildi'
   },
 
+  // Task phase status
+  taskPhaseStatus: {
+    PENDING: 'Beklemede',
+    IN_PROGRESS: 'Devam Ediyor',
+    COMPLETED: 'Tamamlandı',
+    CANCELLED: 'İptal Edildi'
+  },
+
+  // Feedback types
+  feedbackType: {
+    GENERAL: 'Genel',
+    ISSUE: 'Sorun',
+    SUGGESTION: 'Öneri',
+    PROGRESS_UPDATE: 'İlerleme Güncellemesi'
+  },
+
+  // Feedback status
+  feedbackStatus: {
+    PENDING: 'Beklemede',
+    REVIEWED: 'İncelendi',
+    RESOLVED: 'Çözüldü'
+  },
+
+  // Feedback priority
+  feedbackPriority: {
+    LOW: 'Düşük',
+    MEDIUM: 'Orta',
+    HIGH: 'Yüksek'
+  },
+
   // Task priority
   taskPriority: {
     LOW: 'Düşük',
     MEDIUM: 'Orta',
     HIGH: 'Yüksek',
-    URGENT: 'Acil'
+    CRITICAL: 'Kritik'
+  },
+
+  // Task phases
+  taskPhases: {
+    title: 'Görev Aşamaları',
+    phase: 'Aşama',
+    phases: 'Aşamalar',
+    addPhase: 'Aşama Ekle',
+    editPhase: 'Aşama Düzenle',
+    deletePhase: 'Aşama Sil',
+    phaseName: 'Aşama Adı',
+    phaseDescription: 'Aşama Açıklaması',
+    phaseOrder: 'Sıra',
+    estimatedDuration: 'Tahmini Süre',
+    actualDuration: 'Gerçek Süre',
+    phaseStatus: 'Aşama Durumu',
+    startPhase: 'Aşamayı Başlat',
+    completePhase: 'Aşamayı Tamamla',
+    phaseProgress: 'Aşama İlerlemesi'
+  },
+
+  // Feedback system
+  feedback: {
+    title: 'Geri Bildirim',
+    addFeedback: 'Geri Bildirim Ekle',
+    sendFeedback: 'Geri Bildirim Gönder',
+    feedbackMessage: 'Geri Bildirim Mesajı',
+    feedbackType: 'Geri Bildirim Türü',
+    progress: 'İlerleme',
+    issue: 'Sorun',
+    question: 'Soru',
+    suggestion: 'Öneri',
+    urgent: 'Acil',
+    feedbackSent: 'Geri bildirim başarıyla gönderildi',
+    noFeedback: 'Henüz geri bildirim bulunmuyor',
+    replyToFeedback: 'Geri Bildirime Yanıt Ver',
+    feedbackHistory: 'Geri Bildirim Geçmişi',
+    feedbackSubmitted: 'Geri bildirim başarıyla gönderildi',
+    feedbackPriority: 'Geri Bildirim Önceliği',
+    enterMessage: 'Mesajınızı girin...',
+    type: 'Tür'
   },
 
   // Departments
@@ -367,7 +263,8 @@ export const translations = {
     forbidden: 'Erişim engellendi',
     validationError: 'Doğrulama hatası',
     requiredField: 'Bu alan zorunludur',
-    invalidInput: 'Geçersiz veri girişi'
+    invalidInput: 'Geçersiz veri girişi',
+    noDepartmentSelected: 'Departman seçilmedi - lütfen proje seçin veya departman bilginizi kontrol edin'
   },
 
   // Success messages
@@ -404,7 +301,7 @@ export const translations = {
     noTasksForDate: 'Bu tarih için görev bulunmuyor',
     clickDateToView: 'Görevleri görüntülemek için bir tarihe tıklayın',
     phases: 'Aşamalar',
-    progress: 'İlerleme',
+    progress: 'İlerleme'
   },
 
   // Workload
@@ -438,16 +335,19 @@ export const translations = {
 };
 
 export function t(key: string): string {
-  const keys = key.split('.')
-  let value: any = translations
+  const keys = key.split('.');
+  let value: any = translations;
   
   for (const k of keys) {
-    value = value?.[k]
-    if (value === undefined) {
-      console.warn(`Translation key not found: ${key}`)
-      return key
+    if (value && typeof value === 'object' && k in value) {
+      value = value[k];
+    } else {
+      return key; // Return key if translation not found
     }
   }
   
-  return value
+  return typeof value === 'string' ? value : key;
 }
+
+export { translations };
+export default translations;

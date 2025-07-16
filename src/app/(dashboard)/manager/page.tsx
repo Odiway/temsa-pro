@@ -216,17 +216,6 @@ export default function ManagerDashboard() {
           </CardContent>
         </Card>
       </div>
-            <CardTitle className="text-sm font-medium">Tasks</CardTitle>
-            <CheckSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.tasks?.total || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {data.tasks?.pending || 0} {t('dashboard.pending')}, {data.tasks?.overdue || 0} {t('dashboard.overdue')}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Workload Summary */}
       <Card>

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -25,6 +25,8 @@ model User {
   assignedTaskPhases TaskPhase[]   @relation("TaskPhaseAssignee")
   projectParticipations ProjectParticipation[]
   notifications   Notification[]
+  submittedFeedbacks Feedback[]   @relation("FeedbackSubmitter")
+  reviewedFeedbacks Feedback[]    @relation("FeedbackReviewer")
   
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -133,6 +135,7 @@ model Task {
   assignee        User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
   assigneeId      String?
   phases          TaskPhase[]
+  feedbacks       Feedback[]
   
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -163,6 +166,28 @@ model TaskPhase {
   updatedAt       DateTime  @updatedAt
   
   @@map("task_phases")
+}
+
+model Feedback {
+  id              String    @id @default(uuid())
+  message         String
+  status          String    @default("PENDING") // PENDING, REVIEWED, RESOLVED
+  priority        String    @default("MEDIUM") // LOW, MEDIUM, HIGH
+  type            String    @default("GENERAL") // GENERAL, ISSUE, SUGGESTION, PROGRESS_UPDATE
+  
+  // Relations
+  task            Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId          String
+  submittedBy     User      @relation("FeedbackSubmitter", fields: [submittedById], references: [id])
+  submittedById   String
+  reviewedBy      User?     @relation("FeedbackReviewer", fields: [reviewedById], references: [id])
+  reviewedById    String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  reviewedAt      DateTime?
+  
+  @@map("feedbacks")
 }
 
 model Notification {
