@@ -262,7 +262,8 @@ export const translations = {
     endDate: 'Bitiş Tarihi',
     project: 'Proje',
     department: 'Departman',
-    phases: 'Aşamalar',    taskCreated: 'Görev başarıyla oluşturuldu',
+    phases: 'Aşamalar',
+    taskCreated: 'Görev başarıyla oluşturuldu',
     taskUpdated: 'Görev başarıyla güncellendi',
     taskDeleted: 'Görev başarıyla silindi'
   },
@@ -431,10 +432,10 @@ export const translations = {
       busy: 'Meşgul',
       busyDesc: 'Yüksek iş yükü (70-90%)',
       overloaded: 'Aşırı Yüklenmiş',
-      overloadedDesc: 'Kritik iş yükü (>90%)',
+      overloadedDesc: 'Kritik iş yükü (>90%)'
     }
   }
-}
+};
 
 export function t(key: string): string {
   const keys = key.split('.')

@@ -310,14 +310,131 @@ export default function TasksPage() {
                 <Plus className="mr-2 h-4 w-4" />
                 {t('tasks.addTask')}
               </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>{editingTask ? 'Edit Task' : 'Add New Task'}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <Label htmlFor="title">Task Title</Label>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editingTask ? t('tasks.editTask') : t('tasks.addTask')}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div>
+                  <Label htmlFor="title">{t('tasks.taskTitle')}</Label>
+                  <Input id="title" {...register('title')} />
+                  {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="description">{t('tasks.description')}</Label>
+                  <Input id="description" {...register('description')} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="project">{t('tasks.project')}</Label>
+                    <Select 
+                      value={selectedProject} 
+                      onValueChange={(value: string) => {
+                        setSelectedProject(value);
+                        setValue('projectId', value);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('forms.pleaseSelect')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {projects.map((project) => (
+                          <SelectItem key={project.id} value={project.id}>
+                            {project.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.projectId && <p className="text-red-500 text-sm">{errors.projectId.message}</p>}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="assignedTo">{t('tasks.assignedTo')}</Label>
+                    <Select 
+                      value={selectedUser} 
+                      onValueChange={(value: string) => {
+                        setSelectedUser(value);
+                        setValue('assignedToId', value);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('forms.pleaseSelect')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {users.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name} ({user.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="status">{t('tasks.status')}</Label>
+                    <Select 
+                      value={selectedStatus} 
+                      onValueChange={(value: string) => {
+                        setSelectedStatus(value);
+                        setValue('status', value as any);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('forms.pleaseSelect')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PENDING">{t('taskStatus.PENDING')}</SelectItem>
+                        <SelectItem value="IN_PROGRESS">{t('taskStatus.IN_PROGRESS')}</SelectItem>
+                        <SelectItem value="COMPLETED">{t('taskStatus.COMPLETED')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="priority">{t('tasks.priority')}</Label>
+                    <Select 
+                      value={selectedPriority} 
+                      onValueChange={(value: string) => {
+                        setSelectedPriority(value);
+                        setValue('priority', value as any);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('forms.pleaseSelect')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="LOW">{t('taskPriority.LOW')}</SelectItem>
+                        <SelectItem value="MEDIUM">{t('taskPriority.MEDIUM')}</SelectItem>
+                        <SelectItem value="HIGH">{t('taskPriority.HIGH')}</SelectItem>
+                        <SelectItem value="CRITICAL">{t('taskPriority.CRITICAL')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="endDate">{t('tasks.dueDate')}</Label>
+                  <Input id="endDate" type="date" {...register('endDate')} />
+                </div>
+
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    {t('common.cancel')}
+                  </Button>
+                  <Button type="submit">
+                    {editingTask ? t('common.update') : t('common.create')}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
                 <Input id="title" {...register('title')} />
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
               </div>

@@ -222,7 +222,7 @@ export default function ManagerDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{data.tasks?.total || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {data.tasks?.pending || 0} pending, {data.tasks?.overdue || 0} overdue
+              {data.tasks?.pending || 0} {t('dashboard.pending')}, {data.tasks?.overdue || 0} {t('dashboard.overdue')}
             </p>
           </CardContent>
         </Card>
