@@ -9,12 +9,35 @@ export const dynamic = 'force-dynamic'
 // Cache control for real-time data
 const CACHE_DURATION = 30; // seconds
 
+// Add CORS headers for cross-origin requests
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cache-Control, If-Modified-Since',
+    'Access-Control-Max-Age': '86400',
+  }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders()
+  })
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { 
+          status: 401,
+          headers: corsHeaders()
+        }
+      )
     }
 
     // Build where clauses based on user role
@@ -342,6 +365,7 @@ export async function GET(request: NextRequest) {
 
     // Set cache headers for efficient sync
     const headers = new Headers({
+      ...corsHeaders(),
       'Content-Type': 'application/json',
       'Cache-Control': `public, max-age=${CACHE_DURATION}`,
       'Last-Modified': lastModified,
@@ -352,8 +376,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching dashboard data:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        status: 500,
+        headers: corsHeaders()
+      }
     )
   }
 }
