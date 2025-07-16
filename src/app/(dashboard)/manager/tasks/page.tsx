@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { CheckSquare, Plus, Edit, Trash2, Calendar, User, AlertCircle } from 'lucide-react';
+
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import toast from 'react-hot-toast';
 
 const taskSchema = z.object({
   title: z.string().min(1, 'Task title is required'),
@@ -181,7 +183,6 @@ export default function TasksPage() {
       });
 
       if (response.ok) {
-        console.log('Task saved successfully');
         await fetchTasks();
         setIsDialogOpen(false);
         setEditingTask(null);
@@ -191,12 +192,15 @@ export default function TasksPage() {
         setSelectedUser('');
         setSelectedStatus('PENDING');
         setSelectedPriority('MEDIUM');
+        toast.success(editingTask ? 'Task updated successfully!' : 'Task created successfully!');
       } else {
         const errorData = await response.text();
         console.error('Failed to save task:', response.status, errorData);
+        toast.error('Failed to save task: ' + errorData);
       }
     } catch (error) {
       console.error('Error saving task:', error);
+      toast.error('Error saving task.');
     }
   };
 
