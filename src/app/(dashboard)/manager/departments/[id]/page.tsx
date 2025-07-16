@@ -83,8 +83,10 @@ export default function DepartmentDetailPage() {
       const response = await fetch('/api/users');
       if (response.ok) {
         const data = await response.json();
+        // API returns {users: [...], pagination: {...}} format
+        const usersList = data.users || data;
         // Filter users who are not assigned to any department
-        setAvailableUsers(Array.isArray(data) ? data.filter((user: User) => !user.departmentId) : []);
+        setAvailableUsers(Array.isArray(usersList) ? usersList.filter((user: User) => !user.departmentId) : []);
       }
     } catch (error) {
       console.error('Error fetching users:', error);

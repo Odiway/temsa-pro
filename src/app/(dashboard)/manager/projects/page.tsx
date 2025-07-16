@@ -62,6 +62,8 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
@@ -124,6 +126,8 @@ export default function ProjectsPage() {
         await fetchProjects();
         setIsDialogOpen(false);
         setEditingProject(null);
+        setSelectedDepartmentId('');
+        setSelectedStatus('');
         reset();
         toast.success(editingProject ? t('projects.projectUpdated') : t('projects.projectCreated'));
       } else {
@@ -137,6 +141,8 @@ export default function ProjectsPage() {
 
   const handleEdit = (project: Project) => {
     setEditingProject(project);
+    setSelectedDepartmentId(project.departments?.[0]?.id || '');
+    setSelectedStatus(project.status);
     reset({
       name: project.name,
       description: project.description || '',
@@ -187,7 +193,12 @@ export default function ProjectsPage() {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { setEditingProject(null); reset(); }}>
+            <Button onClick={() => { 
+              setEditingProject(null); 
+              setSelectedDepartmentId('');
+              setSelectedStatus('');
+              reset(); 
+            }}>
               <Plus className="mr-2 h-4 w-4" />
               {t('projects.addProject')}
             </Button>
@@ -206,8 +217,11 @@ export default function ProjectsPage() {
                 <div>
                   <Label htmlFor="departments">{t('projects.departments')}</Label>
                   <Select 
-                    value={editingProject ? (editingProject.departments?.[0]?.id || '') : ''} 
-                    onValueChange={(value: string) => setValue('departmentIds', [value])}
+                    value={selectedDepartmentId} 
+                    onValueChange={(value: string) => {
+                      setSelectedDepartmentId(value);
+                      setValue('departmentIds', [value]);
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={t('users.selectDepartment')} />
@@ -233,8 +247,11 @@ export default function ProjectsPage() {
                 <div>
                   <Label htmlFor="status">{t('projects.status')}</Label>
                   <Select 
-                    value={editingProject ? editingProject.status : ''} 
-                    onValueChange={(value: string) => setValue('status', value as any)}
+                    value={selectedStatus} 
+                    onValueChange={(value: string) => {
+                      setSelectedStatus(value);
+                      setValue('status', value as any);
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={t('forms.pleaseSelect')} />

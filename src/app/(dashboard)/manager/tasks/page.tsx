@@ -141,7 +141,9 @@ export default function TasksPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Users data:', data);
-        setUsers(Array.isArray(data) ? data : []);
+        // API returns {users: [...], pagination: {...}} format
+        const usersList = data.users || data;
+        setUsers(Array.isArray(usersList) ? usersList : []);
       } else {
         const errorText = await response.text();
         console.error('Failed to fetch users:', response.status, response.statusText, errorText);
