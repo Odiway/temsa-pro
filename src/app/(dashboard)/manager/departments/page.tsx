@@ -15,6 +15,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { t } from '@/lib/translations';
 import toast from 'react-hot-toast';
+import { normalizeRole } from '@/lib/roles';
 
 const departmentSchema = z.object({
   name: z.string().min(1, t('forms.required')),
@@ -63,6 +64,7 @@ export default function DepartmentsPage() {
       const response = await fetch('/api/users');
       if (response.ok) {
         const data = await response.json();
+        console.log('Fetched users:', data); // Debug log
         setUsers(Array.isArray(data) ? data : []);
       }
     } catch (error) {
@@ -194,11 +196,15 @@ export default function DepartmentsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="no-head">{t('departments.noHeadAssigned')}</SelectItem>
-                    {users.filter(user => ['MANAGER', 'DEPARTMENT'].includes(user.role)).map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name} ({user.email})
-                      </SelectItem>
-                    ))}
+                    {users.map((user) => {
+                      const normalizedRole = normalizeRole(user.role);
+                      console.log('User:', user.name, 'original role:', user.role, 'normalized:', normalizedRole);
+                      return (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name} ({user.email}) - {user.role}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
