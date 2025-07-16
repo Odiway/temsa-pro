@@ -16,6 +16,9 @@ import Link from 'next/link';
 import { t } from '@/lib/translations';
 import toast from 'react-hot-toast';
 import DeadlineCalculator from '@/components/DeadlineCalculator';
+import { useProjectSync } from '@/hooks/useRealTimeSync';
+import { SyncStatus } from '@/components/SyncStatus';
+import { useSyncNotifications } from '@/hooks/useSyncNotifications';
 
 const projectSchema = z.object({
   name: z.string().min(1, t('forms.required')),
@@ -66,14 +69,33 @@ export default function ProjectsPage() {
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
 
+  // Use real-time sync for projects
+  const { data: syncData, loading: syncLoading, error: syncError, forceRefresh, isConnected } = useProjectSync(
+    (newProjects) => {
+      setProjects(newProjects);
+    }
+  );
+
+  // Set up sync notifications for manager
+  useSyncNotifications({
+    data: syncData,
+    userId: session?.user?.id,
+    departmentId: session?.user?.departmentId,
+    onNotification: (notification) => {
+      console.log('Manager notification:', notification);
+    }
+  });
+
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
   });
 
   useEffect(() => {
-    fetchProjects();
+    if (!syncData) {
+      fetchProjects();
+    }
     fetchDepartments();
-  }, []);
+  }, [syncData]);
 
   const fetchProjects = async () => {
     try {
@@ -192,22 +214,30 @@ export default function ProjectsPage() {
           <h1 className="text-3xl font-bold">{t('projects.title')}</h1>
           <p className="text-muted-foreground">{t('projects.description')}</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => { 
-              setEditingProject(null); 
-              setSelectedDepartmentId('');
-              setSelectedStatus('');
-              reset(); 
-            }}>
-              <Plus className="mr-2 h-4 w-4" />
-              {t('projects.addProject')}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>{editingProject ? t('projects.editProject') : t('projects.addProject')}</DialogTitle>
-            </DialogHeader>
+        <div className="flex items-center space-x-4">
+          <SyncStatus 
+            isConnected={isConnected}
+            loading={syncLoading}
+            error={syncError}
+            lastUpdated={syncData?.lastUpdated}
+            onRefresh={forceRefresh}
+          />
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => { 
+                setEditingProject(null); 
+                setSelectedDepartmentId('');
+                setSelectedStatus('');
+                reset(); 
+              }}>
+                <Plus className="mr-2 h-4 w-4" />
+                {t('projects.addProject')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editingProject ? t('projects.editProject') : t('projects.addProject')}</DialogTitle>
+              </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -289,8 +319,9 @@ export default function ProjectsPage() {
                 </Button>
               </div>
             </form>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

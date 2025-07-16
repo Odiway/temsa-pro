@@ -1,8 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useTaskSync } from '@/hooks/useRealTimeSync'
+import { SyncStatus } from '@/components/SyncStatus'
+import { useSyncNotifications } from '@/hooks/useSyncNotifications'
+import { t } from '@/lib/translations'
 
 interface TaskPhase {
   id: string
@@ -21,8 +26,31 @@ interface TaskPhase {
 }
 
 export default function FieldPage() {
+  const { data: session } = useSession()
   const [taskPhases, setTaskPhases] = useState<TaskPhase[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Use real-time sync for tasks
+  const { data: syncData, loading: syncLoading, error: syncError, forceRefresh, isConnected } = useTaskSync(
+    (tasks) => {
+      // Filter tasks to show only assigned phases
+      const userPhases = tasks
+        .filter(task => task.assigneeId)
+        .flatMap(task => task.phases || [])
+        .filter(phase => phase.status !== 'COMPLETED');
+      setTaskPhases(userPhases);
+    }
+  );
+
+  // Set up sync notifications for field worker
+  useSyncNotifications({
+    data: syncData,
+    userId: session?.user?.id,
+    departmentId: session?.user?.departmentId,
+    onNotification: (notification) => {
+      console.log('Field worker notification:', notification);
+    }
+  });
 
   useEffect(() => {
     const fetchTaskPhases = async () => {
@@ -39,8 +67,10 @@ export default function FieldPage() {
       }
     }
 
-    fetchTaskPhases()
-  }, [])
+    if (!syncData) {
+      fetchTaskPhases()
+    }
+  }, [syncData])
 
   const handleStartPhase = async (phaseId: string) => {
     try {
@@ -86,10 +116,19 @@ export default function FieldPage() {
     }
   }
 
-  if (loading) {
+  if (loading || syncLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">My Tasks</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">{t('tasks.myTasks')}</h1>
+          <SyncStatus 
+            isConnected={isConnected}
+            loading={syncLoading}
+            error={syncError}
+            lastUpdated={syncData?.lastUpdated}
+            onRefresh={forceRefresh}
+          />
+        </div>
         <div className="grid gap-6">
           {Array(3).fill(0).map((_, i) => (
             <Card key={i}>
@@ -111,11 +150,18 @@ export default function FieldPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">My Tasks</h1>
-        <p className="mt-2 text-gray-600">
-          Your assigned task phases and current progress
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">{t('tasks.myTasks')}</h1>
+          <p className="text-gray-600">{t('tasks.fieldDescription')}</p>
+        </div>
+        <SyncStatus 
+          isConnected={isConnected}
+          loading={syncLoading}
+          error={syncError}
+          lastUpdated={syncData?.lastUpdated}
+          onRefresh={forceRefresh}
+        />
       </div>
 
       {taskPhases.length === 0 ? (

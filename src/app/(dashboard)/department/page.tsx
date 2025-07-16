@@ -7,6 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CalendarDays, Users, TrendingUp, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { useStatsSync } from '@/hooks/useRealTimeSync'
+import { SyncStatus } from '@/components/SyncStatus'
+import { useSyncNotifications } from '@/hooks/useSyncNotifications'
+import { t } from '@/lib/translations'
 
 interface DepartmentStats {
   totalProjects: number
@@ -23,6 +27,23 @@ export default function DepartmentDashboard() {
   const [stats, setStats] = useState<DepartmentStats | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Use real-time sync for stats
+  const { data: syncData, loading: syncLoading, error: syncError, forceRefresh, isConnected } = useStatsSync(
+    (newStats) => {
+      setStats(newStats);
+    }
+  );
+
+  // Set up sync notifications
+  useSyncNotifications({
+    data: syncData,
+    userId: session?.user?.id,
+    departmentId: session?.user?.departmentId,
+    onNotification: (notification) => {
+      console.log('Department notification:', notification);
+    }
+  });
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -38,10 +59,10 @@ export default function DepartmentDashboard() {
       }
     }
 
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && !syncData) {
       fetchStats()
     }
-  }, [status])
+  }, [status, syncData])
 
   if (status === 'loading') {
     return <div className="flex items-center justify-center h-96">Loading...</div>
@@ -59,20 +80,29 @@ export default function DepartmentDashboard() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Department Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('departments.dashboard')}</h1>
           <p className="text-muted-foreground">
-            Welcome back, {session.user.name}
+            {t('auth.welcome')}, {session.user.name}
           </p>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm">
-            <CalendarDays className="mr-2 h-4 w-4" />
-            View Calendar
-          </Button>
-          <Button size="sm">
-            <Users className="mr-2 h-4 w-4" />
-            Manage Team
-          </Button>
+        <div className="flex items-center space-x-4">
+          <SyncStatus 
+            isConnected={isConnected}
+            loading={syncLoading}
+            error={syncError}
+            lastUpdated={syncData?.lastUpdated}
+            onRefresh={forceRefresh}
+          />
+          <div className="flex space-x-2">
+            <Button variant="outline" size="sm">
+              <CalendarDays className="mr-2 h-4 w-4" />
+              {t('common.viewCalendar')}
+            </Button>
+            <Button size="sm">
+              <Users className="mr-2 h-4 w-4" />
+              {t('teams.manage')}
+            </Button>
+          </div>
         </div>
       </div>
 

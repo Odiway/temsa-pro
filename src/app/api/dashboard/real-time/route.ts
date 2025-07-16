@@ -6,6 +6,9 @@ import { isDepartment } from '@/lib/roles'
 
 export const dynamic = 'force-dynamic'
 
+// Cache control for real-time data
+const CACHE_DURATION = 30; // seconds
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -251,7 +254,40 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({
+    // Fetch detailed data for sync
+    const detailedProjects = await prisma.project.findMany({
+      where: projectWhere,
+      include: {
+        departments: true,
+        _count: { select: { tasks: true } },
+        creator: { select: { id: true, name: true, email: true } }
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 50
+    });
+
+    const detailedTasks = await prisma.task.findMany({
+      where: taskWhere,
+      include: {
+        project: { select: { id: true, name: true } },
+        assignee: { select: { id: true, name: true, email: true } },
+        phases: true
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 100
+    });
+
+    const departmentData = await prisma.department.findMany({
+      where: session.user.role === 'FIELD' ? { id: session.user.departmentId } : {},
+      include: {
+        users: { select: { id: true, name: true, email: true, role: true } },
+        _count: { select: { users: true, projects: true } }
+      }
+    });
+
+    const lastModified = new Date().toUTCString();
+    
+    const responseData = {
       summary: {
         projects: {
           total: totalProjects,
@@ -284,8 +320,35 @@ export async function GET(request: NextRequest) {
         projects: recentProjects,
         notifications: recentNotifications
       },
+      // Detailed data for sync
+      projects: detailedProjects,
+      tasks: detailedTasks,
+      departments: departmentData,
+      stats: {
+        totalProjects,
+        activeProjects,
+        completedProjects,
+        totalTasks,
+        pendingTasks,
+        inProgressTasks,
+        completedTasks,
+        overdueTasks,
+        totalUsers,
+        activeUsers
+      },
+      lastUpdated: new Date().toISOString(),
       timestamp: new Date().toISOString()
-    })
+    };
+
+    // Set cache headers for efficient sync
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      'Cache-Control': `public, max-age=${CACHE_DURATION}`,
+      'Last-Modified': lastModified,
+      'ETag': `"${Buffer.from(JSON.stringify(responseData)).toString('base64').slice(0, 32)}"`
+    });
+
+    return new NextResponse(JSON.stringify(responseData), { headers });
   } catch (error) {
     console.error('Error fetching dashboard data:', error)
     return NextResponse.json(

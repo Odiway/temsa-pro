@@ -33,7 +33,8 @@ export const translations = {
     actions: 'İşlemler',
     options: 'Seçenekler',
     settings: 'Ayarlar',
-    created: 'Oluşturuldu'
+    created: 'Oluşturuldu',
+    viewCalendar: 'Takvimi Görüntüle'
   },
 
   // Authentication
@@ -49,6 +50,62 @@ export const translations = {
     unauthorized: 'Yetkisiz Erişim',
     invalidCredentials: 'Geçersiz giriş bilgileri',
     sessionExpired: 'Oturum süresi doldu'
+  },
+
+  // Real-time synchronization
+  sync: {
+    title: 'Senkronizasyon Durumu',
+    status: 'Durum',
+    connected: 'Bağlı',
+    disconnected: 'Bağlantı Kesildi',
+    syncing: 'Senkronize Ediliyor',
+    error: 'Hata',
+    justNow: 'Şimdi',
+    minutesAgo: 'dakika önce',
+    hoursAgo: 'saat önce',
+    lastUpdate: 'Son Güncelleme',
+    errorMessage: 'Hata Mesajı',
+    connectedDetails: 'Sistem gerçek zamanlı olarak senkronize ediliyor',
+    disconnectedDetails: 'Bağlantı kesildi, lütfen sayfayı yenileyin',
+    syncingDetails: 'Veriler güncelleniyor...',
+    errorDetails: 'Senkronizasyon hatası oluştu',
+  },
+
+  // Notifications
+  notifications: {
+    title: 'Bildirimler',
+    noNotifications: 'Bildirim bulunmuyor',
+    markAsRead: 'Okundu olarak işaretle',
+    markAllAsRead: 'Tümünü okundu olarak işaretle',
+    deleteNotification: 'Bildirimi sil',
+    newNotification: 'Yeni bildirim',
+    projectCreated: 'Yeni proje oluşturuldu',
+    projectUpdated: 'Proje güncellendi',
+    projectDeleted: 'Proje silindi',
+    projectAssigned: 'Projeye atandınız',
+    taskCreated: 'Yeni görev oluşturuldu',
+    taskUpdated: 'Görev güncellendi',
+    taskDeleted: 'Görev silindi',
+    taskAssigned: 'Size yeni görev atandı',
+    userCreated: 'Yeni kullanıcı eklendi',
+    userUpdated: 'Kullanıcı güncellendi',
+    userDeleted: 'Kullanıcı silindi',
+    userAssigned: 'Kullanıcı atandı',
+    departmentCreated: 'Yeni departman oluşturuldu',
+    departmentUpdated: 'Departman güncellendi',
+    departmentDeleted: 'Departman silindi',
+    departmentAssigned: 'Departmana atandınız'
+  },
+
+  // Teams
+  teams: {
+    title: 'Takım Yönetimi',
+    team: 'Takım',
+    teams: 'Takımlar',
+    manage: 'Takımı Yönet',
+    teamMembers: 'Takım Üyeleri',
+    addMember: 'Üye Ekle',
+    removeMember: 'Üye Çıkar'
   },
 
   // User roles
@@ -139,6 +196,8 @@ export const translations = {
     title: 'Görev Yönetimi',
     task: 'Görev',
     tasks: 'Görevler',
+    myTasks: 'Görevlerim',
+    fieldDescription: 'Atanmış görev aşamalarınız ve mevcut ilerleme',
     addTask: 'Görev Ekle',
     editTask: 'Görev Düzenle',
     deleteTask: 'Görev Sil',
@@ -183,6 +242,7 @@ export const translations = {
     description: 'Organizasyonel departmanları yönetin',
     department: 'Departman',
     departments: 'Departmanlar',
+    dashboard: 'Departman Panosu',
     addDepartment: 'Departman Ekle',
     editDepartment: 'Departman Düzenle',
     deleteDepartment: 'Departman Sil',
@@ -247,16 +307,6 @@ export const translations = {
     pleaseSelect: 'Lütfen seçin',
     noOptionsAvailable: 'Seçenek bulunmuyor',
     selectOption: 'Seçenek seçin'
-  },
-
-  // Notifications
-  notifications: {
-    title: 'Bildirimler',
-    noNotifications: 'Bildirim bulunmuyor',
-    markAsRead: 'Okundu olarak işaretle',
-    markAllAsRead: 'Tümünü okundu olarak işaretle',
-    deleteNotification: 'Bildirimi sil',
-    newNotification: 'Yeni bildirim'
   },
 
   // Error messages
