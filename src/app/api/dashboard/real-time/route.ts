@@ -9,12 +9,42 @@ export const dynamic = 'force-dynamic'
 // Cache control for real-time data
 const CACHE_DURATION = 30; // seconds
 
+<<<<<<< HEAD
+=======
+// Add CORS headers for cross-origin requests
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cache-Control, If-Modified-Since',
+    'Access-Control-Max-Age': '86400',
+  }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders()
+  })
+}
+
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
+<<<<<<< HEAD
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+=======
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { 
+          status: 401,
+          headers: corsHeaders()
+        }
+      )
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
     }
 
     // Build where clauses based on user role
@@ -342,6 +372,10 @@ export async function GET(request: NextRequest) {
 
     // Set cache headers for efficient sync
     const headers = new Headers({
+<<<<<<< HEAD
+=======
+      ...corsHeaders(),
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
       'Content-Type': 'application/json',
       'Cache-Control': `public, max-age=${CACHE_DURATION}`,
       'Last-Modified': lastModified,
@@ -352,8 +386,16 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching dashboard data:', error)
     return NextResponse.json(
+<<<<<<< HEAD
       { error: 'Internal server error' },
       { status: 500 }
+=======
+      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        status: 500,
+        headers: corsHeaders()
+      }
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
     )
   }
 }

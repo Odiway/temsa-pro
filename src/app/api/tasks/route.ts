@@ -3,14 +3,33 @@ import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
+<<<<<<< HEAD
 export async function GET() {
+=======
+export async function GET(request: NextRequest) {
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+<<<<<<< HEAD
     const tasks = await prisma.task.findMany({
+=======
+    const { searchParams } = new URL(request.url)
+    const assignedToMe = searchParams.get('assignedToMe') === 'true'
+
+    // Build where clause based on query parameters
+    const whereClause: any = {}
+    
+    if (assignedToMe) {
+      whereClause.assigneeId = session.user.id
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: whereClause,
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
       include: {
         department: {
           select: {
@@ -73,6 +92,14 @@ export async function POST(request: NextRequest) {
 
     const { title, description, status, priority, startDate, endDate, departmentId, projectId, assigneeId, estimatedHours } = await request.json()
 
+<<<<<<< HEAD
+=======
+    // Validate required fields
+    if (!title || !departmentId) {
+      return NextResponse.json({ error: 'Title and department are required' }, { status: 400 })
+    }
+
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
     const task = await prisma.task.create({
       data: {
         title,

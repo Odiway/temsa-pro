@@ -3,7 +3,11 @@ generator client {
 }
 
 datasource db {
+<<<<<<< HEAD
   provider = "postgresql"
+=======
+  provider = "sqlite"
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   url      = env("DATABASE_URL")
 }
 
@@ -25,6 +29,11 @@ model User {
   assignedTaskPhases TaskPhase[]   @relation("TaskPhaseAssignee")
   projectParticipations ProjectParticipation[]
   notifications   Notification[]
+<<<<<<< HEAD
+=======
+  submittedFeedbacks Feedback[]   @relation("FeedbackSubmitter")
+  reviewedFeedbacks Feedback[]    @relation("FeedbackReviewer")
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -133,6 +142,10 @@ model Task {
   assignee        User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
   assigneeId      String?
   phases          TaskPhase[]
+<<<<<<< HEAD
+=======
+  feedbacks       Feedback[]
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -165,6 +178,31 @@ model TaskPhase {
   @@map("task_phases")
 }
 
+<<<<<<< HEAD
+=======
+model Feedback {
+  id              String    @id @default(uuid())
+  message         String
+  status          String    @default("PENDING") // PENDING, REVIEWED, RESOLVED
+  priority        String    @default("MEDIUM") // LOW, MEDIUM, HIGH
+  type            String    @default("GENERAL") // GENERAL, ISSUE, SUGGESTION, PROGRESS_UPDATE
+  
+  // Relations
+  task            Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId          String
+  submittedBy     User      @relation("FeedbackSubmitter", fields: [submittedById], references: [id])
+  submittedById   String
+  reviewedBy      User?     @relation("FeedbackReviewer", fields: [reviewedById], references: [id])
+  reviewedById    String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  reviewedAt      DateTime?
+  
+  @@map("feedbacks")
+}
+
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
 model Notification {
   id            String    @id @default(uuid())
   title         String
