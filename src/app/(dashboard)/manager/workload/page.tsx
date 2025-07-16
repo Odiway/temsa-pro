@@ -26,6 +26,7 @@ import {
 import { WorkloadDisplay } from '@/components/WorkloadDisplay';
 import { WorkloadStatsWidget } from '@/components/WorkloadStatsWidget';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { t } from '@/lib/translations';
 import toast from 'react-hot-toast';
 
 interface Department {
@@ -82,17 +83,17 @@ export default function WorkloadManagementPage() {
         <div>
           <h1 className="text-3xl font-bold flex items-center">
             <Users className="mr-3 h-8 w-8" />
-            Team Workload Management
+            {t('workload.title')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Monitor team capacity, availability, and assign tasks efficiently
+            {t('workload.description')}
           </p>
         </div>
         
         <div className="flex space-x-2">
           <Button variant="outline" onClick={handleExportWorkload}>
             <Download className="mr-2 h-4 w-4" />
-            Export Report
+            {t('workload.exportReport')}
           </Button>
         </div>
       </div>
@@ -102,19 +103,19 @@ export default function WorkloadManagementPage() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Filter className="mr-2 h-5 w-5" />
-            Filters
+            {t('workload.filters')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Department</label>
+              <label className="text-sm font-medium mb-2 block">{t('workload.department')}</label>
               <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All Departments" />
+                  <SelectValue placeholder={t('workload.allDepartments')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
+                  <SelectItem value="all">{t('workload.allDepartments')}</SelectItem>
                   {departments.map((dept) => (
                     <SelectItem key={dept.id} value={dept.id}>
                       {dept.name}
@@ -125,11 +126,11 @@ export default function WorkloadManagementPage() {
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Search Users</label>
+              <label className="text-sm font-medium mb-2 block">{t('workload.searchUsers')}</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search by name or email..."
+                  placeholder={t('workload.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -146,7 +147,7 @@ export default function WorkloadManagementPage() {
                 }}
                 className="w-full"
               >
-                Clear Filters
+                {t('workload.clearFilters')}
               </Button>
             </div>
           </div>
@@ -161,7 +162,7 @@ export default function WorkloadManagementPage() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <BarChart3 className="mr-2 h-5 w-5" />
-            Workload Analysis
+            {t('workload.analysis')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -169,23 +170,23 @@ export default function WorkloadManagementPage() {
             <div className="flex items-center space-x-4 text-sm">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span>Available (0-50%)</span>
+                <span>{t('workload.available')}</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                <span>Moderate (50-70%)</span>
+                <span>{t('workload.moderate')}</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                <span>Busy (70-90%)</span>
+                <span>{t('workload.busy')}</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
-                <span>Critical (90-100%)</span>
+                <span>{t('workload.critical')}</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                <span>Overloaded (100%+)</span>
+                <span>{t('workload.overloaded')}</span>
               </div>
             </div>
           </div>

@@ -307,6 +307,35 @@ export const translations = {
     clickDateToView: 'Görevleri görüntülemek için bir tarihe tıklayın',
     phases: 'Aşamalar',
     progress: 'İlerleme',
+  },
+
+  // Workload
+  workload: {
+    title: 'Takım İş Yükü Yönetimi',
+    description: 'Takım kapasitesini izleyin, müsaitliği kontrol edin ve görevleri verimli şekilde atayın',
+    exportReport: 'Rapor Dışa Aktar',
+    filters: 'Filtreler',
+    department: 'Departman',
+    allDepartments: 'Tüm Departmanlar',
+    searchUsers: 'Kullanıcı Ara',
+    searchPlaceholder: 'İsim veya e-posta ile ara...',
+    clearFilters: 'Filtreleri Temizle',
+    analysis: 'İş Yükü Analizi',
+    available: 'Müsait (0-50%)',
+    moderate: 'Orta (50-70%)',
+    busy: 'Meşgul (70-90%)',
+    critical: 'Kritik (90-100%)',
+    overloaded: 'Aşırı Yüklenmiş (100%+)',
+    stats: {
+      totalUsers: 'Toplam Kullanıcılar',
+      avgUtilization: 'Ortalama Kullanım',
+      available: 'Müsait',
+      availableDesc: 'Yeni görevler için hazır',
+      busy: 'Meşgul',
+      busyDesc: 'Yüksek iş yükü (70-90%)',
+      overloaded: 'Aşırı Yüklenmiş',
+      overloadedDesc: 'Kritik iş yükü (>90%)',
+    }
   }
 }
 
