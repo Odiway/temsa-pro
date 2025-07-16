@@ -65,7 +65,9 @@ export default function DepartmentsPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Fetched users:', data); // Debug log
-        setUsers(Array.isArray(data) ? data : []);
+        // API returns {users: [...], pagination: {...}} format
+        const usersList = data.users || data;
+        setUsers(Array.isArray(usersList) ? usersList : []);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -196,15 +198,20 @@ export default function DepartmentsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="no-head">{t('departments.noHeadAssigned')}</SelectItem>
-                    {users.map((user) => {
-                      const normalizedRole = normalizeRole(user.role);
-                      console.log('User:', user.name, 'original role:', user.role, 'normalized:', normalizedRole);
-                      return (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.name} ({user.email}) - {user.role}
-                        </SelectItem>
-                      );
-                    })}
+                    {users
+                      .filter((user) => {
+                        const normalizedRole = normalizeRole(user.role);
+                        return normalizedRole === 'MANAGER' || normalizedRole === 'DEPARTMENT';
+                      })
+                      .map((user) => {
+                        const normalizedRole = normalizeRole(user.role);
+                        console.log('Eligible head user:', user.name, 'original role:', user.role, 'normalized:', normalizedRole);
+                        return (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name} ({user.email})
+                          </SelectItem>
+                        );
+                      })}
                   </SelectContent>
                 </Select>
               </div>
