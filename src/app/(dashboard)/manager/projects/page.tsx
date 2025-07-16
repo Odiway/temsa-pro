@@ -145,6 +145,11 @@ export default function ProjectsPage() {
       estimatedStartDate: project.estimatedStartDate ? project.estimatedStartDate.split('T')[0] : '',
       estimatedEndDate: project.estimatedEndDate ? project.estimatedEndDate.split('T')[0] : '',
     });
+    
+    // Set form values for controlled components
+    setValue('status', project.status as any);
+    setValue('departmentIds', project.departments?.map(d => d.id) || []);
+    
     setIsDialogOpen(true);
   };
 
@@ -200,7 +205,10 @@ export default function ProjectsPage() {
                 </div>
                 <div>
                   <Label htmlFor="departments">{t('projects.departments')}</Label>
-                  <Select onValueChange={(value: string) => setValue('departmentIds', [value])}>
+                  <Select 
+                    value={editingProject ? (editingProject.departments?.[0]?.id || '') : ''} 
+                    onValueChange={(value: string) => setValue('departmentIds', [value])}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={t('users.selectDepartment')} />
                     </SelectTrigger>
@@ -224,7 +232,10 @@ export default function ProjectsPage() {
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <Label htmlFor="status">{t('projects.status')}</Label>
-                  <Select onValueChange={(value: string) => setValue('status', value as any)}>
+                  <Select 
+                    value={editingProject ? editingProject.status : ''} 
+                    onValueChange={(value: string) => setValue('status', value as any)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={t('forms.pleaseSelect')} />
                     </SelectTrigger>

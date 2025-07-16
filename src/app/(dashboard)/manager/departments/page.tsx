@@ -13,9 +13,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
+import { t } from '@/lib/translations';
+import toast from 'react-hot-toast';
 
 const departmentSchema = z.object({
-  name: z.string().min(1, 'Department name is required'),
+  name: z.string().min(1, t('forms.required')),
   description: z.string().optional(),
   headId: z.string().optional(),
 });
@@ -105,9 +107,13 @@ export default function DepartmentsPage() {
         setIsDialogOpen(false);
         setEditingDepartment(null);
         reset();
+        toast.success(editingDepartment ? t('departments.departmentUpdated') : t('departments.departmentCreated'));
+      } else {
+        toast.error(t('errors.generic'));
       }
     } catch (error) {
       console.error('Error saving department:', error);
+      toast.error(t('errors.generic'));
     }
   };
 
@@ -118,67 +124,76 @@ export default function DepartmentsPage() {
       description: department.description || '',
       headId: department.headId || 'no-head',
     });
+    // Set the form value for controlled component
+    setValue('headId', department.headId || 'no-head');
     setIsDialogOpen(true);
   };
 
   const handleDelete = async (departmentId: string) => {
-    if (confirm('Are you sure you want to delete this department?')) {
+    if (confirm(t('departments.confirmDelete'))) {
       try {
         const response = await fetch(`/api/departments/${departmentId}`, { method: 'DELETE' });
         if (response.ok) {
           await fetchDepartments();
+          toast.success(t('departments.departmentDeleted'));
+        } else {
+          toast.error(t('errors.generic'));
         }
       } catch (error) {
         console.error('Error deleting department:', error);
+        toast.error(t('errors.generic'));
       }
     }
   };
 
   if (status === 'loading' || loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('common.loading')}</div>;
   }
 
   if (status === 'unauthenticated') {
-    return <div className="flex items-center justify-center min-h-screen">Please sign in.</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('auth.unauthorized')}</div>;
   }
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Department Management</h1>
-          <p className="text-muted-foreground">Manage organizational departments</p>
+          <h1 className="text-3xl font-bold">{t('departments.title')}</h1>
+          <p className="text-muted-foreground">{t('departments.description')}</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => { setEditingDepartment(null); reset(); }}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Department
+              {t('departments.addDepartment')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingDepartment ? 'Edit Department' : 'Add New Department'}</DialogTitle>
+              <DialogTitle>{editingDepartment ? t('departments.editDepartment') : t('departments.addDepartment')}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <Label htmlFor="name">Department Name</Label>
+                <Label htmlFor="name">{t('departments.name')}</Label>
                 <Input id="name" {...register('name')} />
                 {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
               </div>
               <div>
-                <Label htmlFor="description">Description (Optional)</Label>
+                <Label htmlFor="description">{t('departments.departmentDescription')} ({t('forms.optional')})</Label>
                 <Input id="description" {...register('description')} />
                 {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
               </div>
               <div>
-                <Label htmlFor="headId">Department Head (Optional)</Label>
-                <Select onValueChange={(value) => setValue('headId', value)} defaultValue={editingDepartment?.headId || 'no-head'}>
+                <Label htmlFor="headId">{t('departments.head')} ({t('forms.optional')})</Label>
+                <Select 
+                  value={editingDepartment ? (editingDepartment.headId || 'no-head') : 'no-head'} 
+                  onValueChange={(value) => setValue('headId', value)}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select department head" />
+                    <SelectValue placeholder={t('departments.selectHead')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="no-head">No head assigned</SelectItem>
+                    <SelectItem value="no-head">{t('departments.noHeadAssigned')}</SelectItem>
                     {users.filter(user => ['MANAGER', 'DEPARTMENT'].includes(user.role)).map((user) => (
                       <SelectItem key={user.id} value={user.id}>
                         {user.name} ({user.email})
@@ -189,10 +204,10 @@ export default function DepartmentsPage() {
               </div>
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit">
-                  {editingDepartment ? 'Update' : 'Create'}
+                  {editingDepartment ? t('common.update') : t('common.create')}
                 </Button>
               </div>
             </form>
@@ -244,23 +259,23 @@ export default function DepartmentsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-sm">
                     <Users className="mr-1 h-4 w-4" />
-                    {department._count?.users || 0} members
+                    {department._count?.users || 0} {t('departments.members')}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {department._count?.projects || 0} projects
+                    {department._count?.projects || 0} {t('departments.projects')}
                   </div>
                 </div>
 
                 {department.head && (
                   <div className="flex items-center text-sm">
                     <Crown className="mr-1 h-4 w-4 text-yellow-500" />
-                    <span className="font-medium">Head: </span>
+                    <span className="font-medium">{t('departments.head')}: </span>
                     <span className="ml-1">{department.head.name}</span>
                   </div>
                 )}
 
                 <div className="text-xs text-muted-foreground">
-                  Created: {new Date(department.createdAt).toLocaleDateString()}
+                  {t('common.created')}: {new Date(department.createdAt).toLocaleDateString()}
                 </div>
               </div>
             </CardContent>
@@ -272,11 +287,11 @@ export default function DepartmentsPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No departments found</h3>
-            <p className="text-muted-foreground mb-4">Get started by creating your first department.</p>
+            <h3 className="text-lg font-medium mb-2">{t('departments.noDepartments')}</h3>
+            <p className="text-muted-foreground mb-4">{t('departments.createFirstDepartment')}</p>
             <Button onClick={() => setIsDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Department
+              {t('departments.addDepartment')}
             </Button>
           </CardContent>
         </Card>

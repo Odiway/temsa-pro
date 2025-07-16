@@ -178,6 +178,7 @@ export const translations = {
   // Departments
   departments: {
     title: 'Departman Yönetimi',
+    description: 'Organizasyonel departmanları yönetin',
     department: 'Departman',
     departments: 'Departmanlar',
     addDepartment: 'Departman Ekle',
@@ -186,11 +187,17 @@ export const translations = {
     createDepartment: 'Yeni Departman Oluştur',
     departmentDetails: 'Departman Detayları',
     name: 'Departman Adı',
-    description: 'Açıklama',
+    departmentDescription: 'Açıklama',
     head: 'Departman Sorumlusu',
     employees: 'Çalışanlar',
-    projects: 'Projeler',
+    members: 'üyeler',
+    projects: 'projeler',
     tasks: 'Görevler',
+    selectHead: 'Departman sorumlusu seçin',
+    noHeadAssigned: 'Atanmış sorumlu yok',
+    noDepartments: 'Departman bulunamadı',
+    createFirstDepartment: 'İlk departmanınızı oluşturarak başlayın.',
+    confirmDelete: 'Bu departmanı silmek istediğinizden emin misiniz?',
     departmentCreated: 'Departman başarıyla oluşturuldu',
     departmentUpdated: 'Departman başarıyla güncellendi',
     departmentDeleted: 'Departman başarıyla silindi'
@@ -230,6 +237,7 @@ export const translations = {
   // Forms
   forms: {
     required: 'Bu alan zorunludur',
+    optional: 'İsteğe bağlı',
     invalidEmail: 'Geçersiz e-posta adresi',
     passwordTooShort: 'Şifre en az 6 karakter olmalıdır',
     confirmPassword: 'Şifre Onayı',
