@@ -15,6 +15,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { WorkloadSummaryWidget } from '@/components/WorkloadSummaryWidget';
+import { t } from '@/lib/translations';
+import { useManagerSync } from '@/hooks/useRealTimeSync';
+import { SyncStatus } from '@/components/SyncStatus';
+import { useSyncNotifications } from '@/hooks/useSyncNotifications';
 
 interface DashboardData {
   users: {
@@ -54,6 +58,50 @@ export default function ManagerDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Use real-time sync for manager dashboard
+  const { data: syncData, loading: syncLoading, error: syncError, forceRefresh, isConnected } = useManagerSync(
+    (newData) => {
+      if (newData.stats) {
+        // Update the dashboard data structure from sync data
+        setData({
+          users: {
+            total: newData.stats?.totalUsers || 0,
+            active: newData.stats?.activeUsers || 0,
+            byRole: []
+          },
+          departments: {
+            total: newData.departments?.length || 0,
+            withProjects: 0
+          },
+          projects: {
+            total: newData.stats?.totalProjects || 0,
+            active: newData.stats?.activeProjects || 0,
+            completed: newData.stats?.completedProjects || 0,
+            byStatus: []
+          },
+          tasks: {
+            total: newData.stats?.totalTasks || 0,
+            completed: newData.stats?.completedTasks || 0,
+            pending: newData.stats?.pendingTasks || 0,
+            overdue: newData.stats?.overdueTasks || 0,
+            byPriority: []
+          },
+          recentActivity: []
+        });
+      }
+    }
+  );
+
+  // Set up sync notifications for manager
+  useSyncNotifications({
+    data: syncData,
+    userId: session?.user?.id,
+    departmentId: session?.user?.departmentId,
+    onNotification: (notification) => {
+      console.log('Manager dashboard notification:', notification);
+    }
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -69,15 +117,15 @@ export default function ManagerDashboard() {
       }
     };
 
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && !syncData) {
       fetchData();
     }
-  }, [status]);
+  }, [status, syncData]);
 
   if (status === 'loading' || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading dashboard...</div>
+        <div className="text-lg">{t('common.loading')}</div>
       </div>
     );
   }
@@ -85,7 +133,7 @@ export default function ManagerDashboard() {
   if (status === 'unauthenticated') {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Please sign in to access the dashboard.</div>
+        <div className="text-lg">{t('auth.unauthorized')}</div>
       </div>
     );
   }
@@ -93,7 +141,7 @@ export default function ManagerDashboard() {
   if (!data) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Failed to load dashboard data.</div>
+        <div className="text-lg">{t('dashboard.failedToLoad')}</div>
       </div>
     );
   }
@@ -101,55 +149,73 @@ export default function ManagerDashboard() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Manager Dashboard</h1>
-        <div className="text-sm text-muted-foreground">
-          Welcome back, {session?.user?.name || session?.user?.email}
+        <div>
+          <h1 className="text-3xl font-bold">{t('dashboard.managerTitle')}</h1>
+          <p className="text-muted-foreground">{t('dashboard.welcome')}, {session?.user?.name || session?.user?.email}</p>
         </div>
+        <SyncStatus 
+          isConnected={isConnected}
+          loading={syncLoading}
+          error={syncError}
+          lastUpdated={syncData?.lastUpdated}
+          onRefresh={forceRefresh}
+        />
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.totalUsers')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.users?.total || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {data.users?.active || 0} active users
+              {data.users?.active || 0} {t('dashboard.activeUsers')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Departments</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.departments')}</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.departments?.total || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {data.departments?.withProjects || 0} with active projects
+              {data.departments?.withProjects || 0} {t('dashboard.withActiveProjects')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Projects</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('projects.title')}</CardTitle>
             <FolderOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.projects?.total || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {data.projects?.active || 0} active, {data.projects?.completed || 0} completed
+              {data.projects?.active || 0} {t('dashboard.active')}, {data.projects?.completed || 0} {t('dashboard.completed')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{t('tasks.title')}</CardTitle>
+            <CheckSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.tasks?.total || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              {data.tasks?.pending || 0} {t('dashboard.pending')}, {data.tasks?.overdue || 0} {t('dashboard.overdue')}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
             <CardTitle className="text-sm font-medium">Tasks</CardTitle>
             <CheckSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>

@@ -204,3 +204,14 @@ export function useStatsSync(onUpdate?: (stats: any) => void) {
     }
   });
 }
+
+export function useManagerSync(onUpdate?: (data: SyncData) => void) {
+  return useRealTimeSync({
+    endpoint: '/api/dashboard/real-time',
+    onUpdate: (data) => {
+      if (onUpdate) {
+        onUpdate(data);
+      }
+    }
+  });
+}

@@ -5,19 +5,25 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { CheckSquare, Plus, Edit, Trash2, Calendar, User, AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { t } from '@/lib/translations';
+import toast from 'react-hot-toast';
+import { useTaskSync } from '@/hooks/useRealTimeSync';
+import { SyncStatus } from '@/components/SyncStatus';
+import { useSyncNotifications } from '@/hooks/useSyncNotifications';
 
 const taskSchema = z.object({
-  title: z.string().min(1, 'Task title is required'),
+  title: z.string().min(1, t('forms.required')),
   description: z.string().optional(),
   status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
-  projectId: z.string().min(1, 'Project is required'),
+  projectId: z.string().min(1, t('forms.required')),
   assignedToId: z.string().optional(),
   endDate: z.string().optional(),
 });
@@ -78,6 +84,23 @@ export default function TasksPage() {
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('PENDING');
   const [selectedPriority, setSelectedPriority] = useState<string>('MEDIUM');
+
+  // Use real-time sync for tasks
+  const { data: syncData, loading: syncLoading, error: syncError, forceRefresh, isConnected } = useTaskSync(
+    (newTasks) => {
+      setTasks(newTasks);
+    }
+  );
+
+  // Set up sync notifications for manager
+  useSyncNotifications({
+    data: syncData,
+    userId: session?.user?.id,
+    departmentId: session?.user?.departmentId,
+    onNotification: (notification) => {
+      console.log('Manager task notification:', notification);
+    }
+  });
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -191,12 +214,15 @@ export default function TasksPage() {
         setSelectedUser('');
         setSelectedStatus('PENDING');
         setSelectedPriority('MEDIUM');
+        toast.success(editingTask ? t('tasks.taskUpdated') : t('tasks.taskCreated'));
       } else {
         const errorData = await response.text();
         console.error('Failed to save task:', response.status, errorData);
+        toast.error(t('errors.generic'));
       }
     } catch (error) {
       console.error('Error saving task:', error);
+      toast.error(t('errors.generic'));
     }
   };
 
@@ -220,14 +246,18 @@ export default function TasksPage() {
   };
 
   const handleDelete = async (taskId: string) => {
-    if (confirm('Are you sure you want to delete this task?')) {
+    if (confirm(t('tasks.confirmDelete'))) {
       try {
         const response = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
         if (response.ok) {
           await fetchTasks();
+          toast.success(t('tasks.taskDeleted'));
+        } else {
+          toast.error(t('errors.generic'));
         }
       } catch (error) {
         console.error('Error deleting task:', error);
+        toast.error(t('errors.generic'));
       }
     }
   };
@@ -237,41 +267,49 @@ export default function TasksPage() {
   };
 
   if (status === 'loading' || loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('common.loading')}</div>;
   }
 
   if (status === 'unauthenticated') {
-    return <div className="flex items-center justify-center min-h-screen">Please sign in.</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('auth.unauthorized')}</div>;
   }
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Task Management</h1>
-          <p className="text-muted-foreground">Manage tasks and track progress</p>
+          <h1 className="text-3xl font-bold">{t('tasks.title')}</h1>
+          <p className="text-muted-foreground">{t('projects.description')}</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => { 
-              setEditingTask(null);
-              setSelectedProject('');
-              setSelectedUser('');
-              setSelectedStatus('PENDING');
-              setSelectedPriority('MEDIUM');
-              reset({
-                title: '',
-                description: '',
-                projectId: '',
-                assignedToId: '',
-                status: 'PENDING',
-                priority: 'MEDIUM',
-                endDate: ''
-              });
-            }}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Task
-            </Button>
+        <div className="flex items-center space-x-4">
+          <SyncStatus 
+            isConnected={isConnected}
+            loading={syncLoading}
+            error={syncError}
+            lastUpdated={syncData?.lastUpdated}
+            onRefresh={forceRefresh}
+          />
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => { 
+                setEditingTask(null);
+                setSelectedProject('');
+                setSelectedUser('');
+                setSelectedStatus('PENDING');
+                setSelectedPriority('MEDIUM');
+                reset({
+                  title: '',
+                  description: '',
+                  projectId: '',
+                  assignedToId: '',
+                  status: 'PENDING',
+                  priority: 'MEDIUM',
+                  endDate: ''
+                });
+              }}>
+                <Plus className="mr-2 h-4 w-4" />
+                {t('tasks.addTask')}
+              </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
