@@ -15,6 +15,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { t } from '@/lib/translations';
 import toast from 'react-hot-toast';
+import DeadlineCalculator from '@/components/DeadlineCalculator';
 
 const projectSchema = z.object({
   name: z.string().min(1, t('forms.required')),
@@ -310,6 +311,12 @@ export default function ProjectsPage() {
                       <Eye className="h-4 w-4" />
                     </Button>
                   </Link>
+                  <DeadlineCalculator 
+                    projectId={project.id}
+                    onCalculated={(calc) => {
+                      toast.success(`Proje süresi: ${calc.workingDays} iş günü hesaplandı`);
+                    }}
+                  />
                   <Button
                     size="sm"
                     variant="outline"

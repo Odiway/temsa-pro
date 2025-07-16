@@ -36,6 +36,20 @@ export async function GET() {
             name: true,
             email: true
           }
+        },
+        phases: {
+          include: {
+            assignedTo: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          },
+          orderBy: {
+            order: 'asc'
+          }
         }
       },
       orderBy: {

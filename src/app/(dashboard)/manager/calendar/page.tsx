@@ -4,7 +4,19 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, User } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, User, Layers, AlertTriangle } from 'lucide-react';
+import { t } from '@/lib/translations';
+
+interface TaskPhase {
+  id: string;
+  name: string;
+  status: string;
+  estimatedTime: number;
+  actualTime?: number;
+  startDate?: string;
+  endDate?: string;
+  assignedTo?: { name: string; id: string };
+}
 
 interface Task {
   id: string;
@@ -12,8 +24,9 @@ interface Task {
   dueDate: string;
   priority: string;
   status: string;
-  assignedTo?: { name: string };
-  project?: { name: string };
+  assignedTo?: { name: string; id: string };
+  project?: { name: string; id: string };
+  phases?: TaskPhase[];
 }
 
 const priorityColors = {
@@ -21,6 +34,20 @@ const priorityColors = {
   MEDIUM: 'bg-blue-500',
   HIGH: 'bg-orange-500',
   CRITICAL: 'bg-red-500',
+};
+
+const phaseStatusColors = {
+  PENDING: 'bg-gray-400',
+  IN_PROGRESS: 'bg-blue-500',
+  COMPLETED: 'bg-green-500',
+  CANCELLED: 'bg-red-400',
+};
+
+const taskStatusColors = {
+  PENDING: 'border-l-gray-400',
+  IN_PROGRESS: 'border-l-blue-500',
+  COMPLETED: 'border-l-green-500',
+  CANCELLED: 'border-l-red-400',
 };
 
 export default function CalendarPage() {
@@ -39,6 +66,7 @@ export default function CalendarPage() {
       const response = await fetch('/api/tasks');
       if (response.ok) {
         const data = await response.json();
+        // Tasks now include phases by default from the API
         setTasks(Array.isArray(data) ? data.filter(task => task.dueDate) : []);
       }
     } catch (error) {
@@ -106,12 +134,36 @@ export default function CalendarPage() {
             {dayTasks.slice(0, 3).map((task, index) => (
               <div
                 key={task.id}
-                className={`text-xs p-1 rounded text-white truncate ${
-                  priorityColors[task.priority as keyof typeof priorityColors]
+                className={`text-xs p-1 rounded-l border-l-4 bg-white shadow-sm ${
+                  taskStatusColors[task.status as keyof typeof taskStatusColors]
                 }`}
-                title={`${task.title} - ${task.project?.name}`}
+                title={`${task.title} - ${task.project?.name}\n${task.phases?.length || 0} aşama`}
               >
-                {task.title}
+                <div className="flex items-center justify-between">
+                  <span className="truncate font-medium">{task.title}</span>
+                  {task.phases && task.phases.length > 0 && (
+                    <span className="flex items-center gap-1 ml-1">
+                      <Layers className="h-3 w-3" />
+                      <span>{task.phases.length}</span>
+                    </span>
+                  )}
+                </div>
+                {task.phases && task.phases.length > 0 && (
+                  <div className="flex gap-1 mt-1">
+                    {task.phases.slice(0, 3).map((phase, phaseIndex) => (
+                      <div
+                        key={phase.id}
+                        className={`w-2 h-2 rounded-full ${
+                          phaseStatusColors[phase.status as keyof typeof phaseStatusColors]
+                        }`}
+                        title={`${phase.name}: ${phase.status}`}
+                      />
+                    ))}
+                    {task.phases.length > 3 && (
+                      <span className="text-xs text-gray-500">+{task.phases.length - 3}</span>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
             {dayTasks.length > 3 && (
@@ -130,19 +182,19 @@ export default function CalendarPage() {
   const selectedDateTasks = selectedDate ? getTasksForDate(selectedDate) : [];
 
   if (status === 'loading' || loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('common.loading')}</div>;
   }
 
   if (status === 'unauthenticated') {
-    return <div className="flex items-center justify-center min-h-screen">Please sign in.</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('auth.unauthorized')}</div>;
   }
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Calendar</h1>
-          <p className="text-muted-foreground">View tasks and deadlines by date</p>
+          <h1 className="text-3xl font-bold">{t('calendar.title')}</h1>
+          <p className="text-muted-foreground">{t('calendar.description')}</p>
         </div>
       </div>
 
@@ -216,14 +268,25 @@ export default function CalendarPage() {
                 selectedDateTasks.length > 0 ? (
                   <div className="space-y-3">
                     {selectedDateTasks.map((task) => (
-                      <div key={task.id} className="border rounded p-3 space-y-2">
+                      <div key={task.id} className={`border-l-4 rounded-r bg-white shadow-sm p-3 space-y-2 ${
+                        taskStatusColors[task.status as keyof typeof taskStatusColors]
+                      }`}>
                         <div className="font-medium">{task.title}</div>
                         
-                        <div className="flex items-center text-sm text-gray-600">
-                          <span className={`w-2 h-2 rounded-full mr-2 ${
-                            priorityColors[task.priority as keyof typeof priorityColors]
-                          }`}></span>
-                          {task.priority}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <span className={`w-2 h-2 rounded-full mr-2 ${
+                              priorityColors[task.priority as keyof typeof priorityColors]
+                            }`}></span>
+                            {task.priority}
+                          </div>
+                          
+                          {task.phases && task.phases.length > 0 && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Layers className="w-3 h-3 mr-1" />
+                              {task.phases.length} {t('tasks.phases')}
+                            </div>
+                          )}
                         </div>
 
                         {task.project && (
@@ -236,6 +299,57 @@ export default function CalendarPage() {
                           <div className="flex items-center text-sm text-gray-600">
                             <User className="w-3 h-3 mr-1" />
                             {task.assignedTo.name}
+                          </div>
+                        )}
+
+                        {/* Task Phases */}
+                        {task.phases && task.phases.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="text-sm font-medium text-gray-700">Aşamalar:</div>
+                            <div className="space-y-1">
+                              {task.phases.map((phase) => (
+                                <div key={phase.id} className="flex items-center justify-between text-xs">
+                                  <div className="flex items-center">
+                                    <div className={`w-2 h-2 rounded-full mr-2 ${
+                                      phaseStatusColors[phase.status as keyof typeof phaseStatusColors]
+                                    }`}></div>
+                                    <span className="truncate">{phase.name}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-gray-500">
+                                    {phase.estimatedTime && (
+                                      <span className="flex items-center">
+                                        <Clock className="w-3 h-3 mr-1" />
+                                        {phase.estimatedTime}h
+                                      </span>
+                                    )}
+                                    {phase.assignedTo && (
+                                      <span className="flex items-center">
+                                        <User className="w-3 h-3 mr-1" />
+                                        {phase.assignedTo.name.split(' ')[0]}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {/* Phase Progress */}
+                            <div className="mt-2">
+                              <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>İlerleme</span>
+                                <span>
+                                  {task.phases.filter(p => p.status === 'COMPLETED').length} / {task.phases.length}
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-green-500 h-2 rounded-full transition-all duration-300" 
+                                  style={{ 
+                                    width: `${(task.phases.filter(p => p.status === 'COMPLETED').length / task.phases.length) * 100}%` 
+                                  }}
+                                />
+                              </div>
+                            </div>
                           </div>
                         )}
 

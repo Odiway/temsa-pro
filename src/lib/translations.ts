@@ -118,6 +118,8 @@ export const translations = {
     noProjects: 'Proje bulunamadı',
     createFirstProject: 'İlk projenizi oluşturarak başlayın.',
     confirmDelete: 'Bu projeyi silmek istediğinizden emin misiniz?',
+    calculateDeadline: 'Tarih Hesapla',
+    deadlineCalculator: 'Tarih Hesaplayıcısı',
     projectCreated: 'Proje başarıyla oluşturuldu',
     projectUpdated: 'Proje başarıyla güncellendi',
     projectDeleted: 'Proje başarıyla silindi'
@@ -294,6 +296,17 @@ export const translations = {
     dateTime: 'Tarih/Saat',
     selectDate: 'Tarih Seçin',
     selectTime: 'Saat Seçin'
+  },
+
+  // Calendar
+  calendar: {
+    title: 'Takvim',
+    description: 'Görevleri ve son tarihleri tarihe göre görüntüleyin',
+    selectDate: 'Bir tarih seçin',
+    noTasksForDate: 'Bu tarih için görev bulunmuyor',
+    clickDateToView: 'Görevleri görüntülemek için bir tarihe tıklayın',
+    phases: 'Aşamalar',
+    progress: 'İlerleme',
   }
 }
 
