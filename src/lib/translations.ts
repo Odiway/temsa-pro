@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 // Turkish translations for TemSafy Pro
 export const translations = {
   // Common terms
   common: {
+=======
+const translations = {
+  // General
+  general: {
+    loading: 'Yükleniyor...',
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
     save: 'Kaydet',
     cancel: 'İptal',
     delete: 'Sil',
     edit: 'Düzenle',
     add: 'Ekle',
+<<<<<<< HEAD
     create: 'Oluştur',
     update: 'Güncelle',
     search: 'Ara',
@@ -120,6 +128,41 @@ export const translations = {
   },
 
   // User management
+=======
+    update: 'Güncelle',
+    create: 'Oluştur',
+    view: 'Görüntüle',
+    back: 'Geri',
+    search: 'Ara',
+    filter: 'Filtrele',
+    clear: 'Temizle',
+    close: 'Kapat',
+    yes: 'Evet',
+    no: 'Hayır',
+    confirm: 'Onayla',
+    warning: 'Uyarı',
+    error: 'Hata',
+    success: 'Başarılı',
+    name: 'Ad',
+    description: 'Açıklama',
+    title: 'Başlık',
+    status: 'Durum',
+    priority: 'Öncelik',
+    type: 'Tür'
+  },
+
+  // Auth
+  auth: {
+    signIn: 'Giriş Yap',
+    signOut: 'Çıkış Yap',
+    email: 'E-posta',
+    password: 'Şifre',
+    login: 'Giriş',
+    welcome: 'Hoş geldiniz'
+  },
+
+  // Users
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   users: {
     title: 'Kullanıcı Yönetimi',
     user: 'Kullanıcı',
@@ -127,6 +170,7 @@ export const translations = {
     addUser: 'Kullanıcı Ekle',
     editUser: 'Kullanıcı Düzenle',
     deleteUser: 'Kullanıcı Sil',
+<<<<<<< HEAD
     userDetails: 'Kullanıcı Detayları',
     createUser: 'Yeni Kullanıcı Oluştur',
     name: 'Ad Soyad',
@@ -145,18 +189,30 @@ export const translations = {
     userExists: 'Bu e-posta adresi zaten kullanımda',
     selectDepartment: 'Departman Seçin',
     selectRole: 'Rol Seçin'
+=======
+    firstName: 'Ad',
+    lastName: 'Soyad',
+    email: 'E-posta',
+    phone: 'Telefon',
+    role: 'Rol',
+    department: 'Departman'
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   },
 
   // Projects
   projects: {
     title: 'Proje Yönetimi',
+<<<<<<< HEAD
     description: 'Projeleri yönetin ve ilerlemeyi takip edin',
+=======
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
     project: 'Proje',
     projects: 'Projeler',
     addProject: 'Proje Ekle',
     editProject: 'Proje Düzenle',
     deleteProject: 'Proje Sil',
     createProject: 'Yeni Proje Oluştur',
+<<<<<<< HEAD
     projectDetails: 'Proje Detayları',
     name: 'Proje Adı',
     projectDescription: 'Açıklama',
@@ -177,11 +233,17 @@ export const translations = {
     confirmDelete: 'Bu projeyi silmek istediğinizden emin misiniz?',
     calculateDeadline: 'Tarih Hesapla',
     deadlineCalculator: 'Tarih Hesaplayıcısı',
+=======
+    projectName: 'Proje Adı',
+    projectDescription: 'Proje Açıklaması',
+    projectManager: 'Proje Yöneticisi',
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
     projectCreated: 'Proje başarıyla oluşturuldu',
     projectUpdated: 'Proje başarıyla güncellendi',
     projectDeleted: 'Proje başarıyla silindi'
   },
 
+<<<<<<< HEAD
   // Project status
   projectStatus: {
     DRAFT: 'Taslak',
@@ -191,17 +253,23 @@ export const translations = {
     CANCELLED: 'İptal Edildi'
   },
 
+=======
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   // Tasks
   tasks: {
     title: 'Görev Yönetimi',
     task: 'Görev',
     tasks: 'Görevler',
+<<<<<<< HEAD
     myTasks: 'Görevlerim',
     fieldDescription: 'Atanmış görev aşamalarınız ve mevcut ilerleme',
+=======
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
     addTask: 'Görev Ekle',
     editTask: 'Görev Düzenle',
     deleteTask: 'Görev Sil',
     createTask: 'Yeni Görev Oluştur',
+<<<<<<< HEAD
     taskDetails: 'Görev Detayları',
     taskTitle: 'Görev Başlığı',
     description: 'Açıklama',
@@ -215,6 +283,15 @@ export const translations = {
     project: 'Proje',
     department: 'Departman',
     phases: 'Aşamalar',
+=======
+    taskTitle: 'Görev Başlığı',
+    taskDescription: 'Görev Açıklaması',
+    assignedTo: 'Atanan',
+    dueDate: 'Son Tarih',
+    startDate: 'Başlangıç Tarihi',
+    endDate: 'Bitiş Tarihi',
+    estimatedHours: 'Tahmini Süre (Saat)',
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
     taskCreated: 'Görev başarıyla oluşturuldu',
     taskUpdated: 'Görev başarıyla güncellendi',
     taskDeleted: 'Görev başarıyla silindi'
@@ -228,12 +305,90 @@ export const translations = {
     CANCELLED: 'İptal Edildi'
   },
 
+<<<<<<< HEAD
+=======
+  // Task phase status
+  taskPhaseStatus: {
+    PENDING: 'Beklemede',
+    IN_PROGRESS: 'Devam Ediyor',
+    COMPLETED: 'Tamamlandı',
+    CANCELLED: 'İptal Edildi'
+  },
+
+  // Feedback types
+  feedbackType: {
+    GENERAL: 'Genel',
+    ISSUE: 'Sorun',
+    SUGGESTION: 'Öneri',
+    PROGRESS_UPDATE: 'İlerleme Güncellemesi'
+  },
+
+  // Feedback status
+  feedbackStatus: {
+    PENDING: 'Beklemede',
+    REVIEWED: 'İncelendi',
+    RESOLVED: 'Çözüldü'
+  },
+
+  // Feedback priority
+  feedbackPriority: {
+    LOW: 'Düşük',
+    MEDIUM: 'Orta',
+    HIGH: 'Yüksek'
+  },
+
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   // Task priority
   taskPriority: {
     LOW: 'Düşük',
     MEDIUM: 'Orta',
     HIGH: 'Yüksek',
+<<<<<<< HEAD
     URGENT: 'Acil'
+=======
+    CRITICAL: 'Kritik'
+  },
+
+  // Task phases
+  taskPhases: {
+    title: 'Görev Aşamaları',
+    phase: 'Aşama',
+    phases: 'Aşamalar',
+    addPhase: 'Aşama Ekle',
+    editPhase: 'Aşama Düzenle',
+    deletePhase: 'Aşama Sil',
+    phaseName: 'Aşama Adı',
+    phaseDescription: 'Aşama Açıklaması',
+    phaseOrder: 'Sıra',
+    estimatedDuration: 'Tahmini Süre',
+    actualDuration: 'Gerçek Süre',
+    phaseStatus: 'Aşama Durumu',
+    startPhase: 'Aşamayı Başlat',
+    completePhase: 'Aşamayı Tamamla',
+    phaseProgress: 'Aşama İlerlemesi'
+  },
+
+  // Feedback system
+  feedback: {
+    title: 'Geri Bildirim',
+    addFeedback: 'Geri Bildirim Ekle',
+    sendFeedback: 'Geri Bildirim Gönder',
+    feedbackMessage: 'Geri Bildirim Mesajı',
+    feedbackType: 'Geri Bildirim Türü',
+    progress: 'İlerleme',
+    issue: 'Sorun',
+    question: 'Soru',
+    suggestion: 'Öneri',
+    urgent: 'Acil',
+    feedbackSent: 'Geri bildirim başarıyla gönderildi',
+    noFeedback: 'Henüz geri bildirim bulunmuyor',
+    replyToFeedback: 'Geri Bildirime Yanıt Ver',
+    feedbackHistory: 'Geri Bildirim Geçmişi',
+    feedbackSubmitted: 'Geri bildirim başarıyla gönderildi',
+    feedbackPriority: 'Geri Bildirim Önceliği',
+    enterMessage: 'Mesajınızı girin...',
+    type: 'Tür'
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   },
 
   // Departments
@@ -319,7 +474,12 @@ export const translations = {
     forbidden: 'Erişim engellendi',
     validationError: 'Doğrulama hatası',
     requiredField: 'Bu alan zorunludur',
+<<<<<<< HEAD
     invalidInput: 'Geçersiz veri girişi'
+=======
+    invalidInput: 'Geçersiz veri girişi',
+    noDepartmentSelected: 'Departman seçilmedi - lütfen proje seçin veya departman bilginizi kontrol edin'
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   },
 
   // Success messages
@@ -356,7 +516,11 @@ export const translations = {
     noTasksForDate: 'Bu tarih için görev bulunmuyor',
     clickDateToView: 'Görevleri görüntülemek için bir tarihe tıklayın',
     phases: 'Aşamalar',
+<<<<<<< HEAD
     progress: 'İlerleme',
+=======
+    progress: 'İlerleme'
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425
   },
 
   // Workload
@@ -384,6 +548,7 @@ export const translations = {
       busy: 'Meşgul',
       busyDesc: 'Yüksek iş yükü (70-90%)',
       overloaded: 'Aşırı Yüklenmiş',
+<<<<<<< HEAD
       overloadedDesc: 'Kritik iş yükü (>90%)',
     }
   }
@@ -403,3 +568,27 @@ export function t(key: string): string {
   
   return value
 }
+=======
+      overloadedDesc: 'Kritik iş yükü (>90%)'
+    }
+  }
+};
+
+export function t(key: string): string {
+  const keys = key.split('.');
+  let value: any = translations;
+  
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = value[k];
+    } else {
+      return key; // Return key if translation not found
+    }
+  }
+  
+  return typeof value === 'string' ? value : key;
+}
+
+export { translations };
+export default translations;
+>>>>>>> 12ff4bcd455b79a2c6f0d558782253458712f425

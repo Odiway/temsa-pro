@@ -25,6 +25,11 @@ model User {
   assignedTaskPhases TaskPhase[]   @relation("TaskPhaseAssignee")
   projectParticipations ProjectParticipation[]
   notifications   Notification[]
+
+
+  submittedFeedbacks Feedback[]   @relation("FeedbackSubmitter")
+  reviewedFeedbacks Feedback[]    @relation("FeedbackReviewer")
+
   
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -133,6 +138,9 @@ model Task {
   assignee        User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
   assigneeId      String?
   phases          TaskPhase[]
+
+  feedbacks       Feedback[]
+
   
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -182,4 +190,20 @@ model Notification {
   updatedAt     DateTime  @updatedAt
   
   @@map("notifications")
+}
+
+model Feedback {
+  id                String    @id @default(uuid())
+  content           String
+  rating            Int?
+  task              Task?     @relation(fields: [taskId], references: [id])
+  taskId            String?
+  submittedBy       User      @relation("FeedbackSubmitter", fields: [submittedById], references: [id])
+  submittedById     String
+  reviewedBy        User?     @relation("FeedbackReviewer", fields: [reviewedById], references: [id])
+  reviewedById      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("feedbacks")
 }
