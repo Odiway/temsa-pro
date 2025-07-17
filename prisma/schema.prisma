@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(uuid())
+  name            String
+  email           String           @unique
+  password        String
+  role            String           @default("FIELD") // ADMIN, MANAGER, DEPARTMENT, FIELD
+  department      Department?      @relation(fields: [departmentId], references: [id])
+  departmentId    String?
+  capacity        Int              @default(8) // Daily working hours
+  
+  // Relations
+  headOfDepartment Department?     @relation("DepartmentHead")
+  createdTasks    Task[]           @relation("TaskCreator")
+  assignedTasks   Task[]           @relation("TaskAssignee")
+  createdProjects Project[]        @relation("ProjectCreator")
+  assignedTaskPhases TaskPhase[]   @relation("TaskPhaseAssignee")
+  projectParticipations ProjectParticipation[]
+  notifications   Notification[]
+
+
+  submittedFeedbacks Feedback[]   @relation("FeedbackSubmitter")
+  reviewedFeedbacks Feedback[]    @relation("FeedbackReviewer")
+
+  
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  @@map("users")
+}
+
+model Department {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  headId      String?   @unique
+  
+  // Relations
+  head        User?     @relation("DepartmentHead", fields: [headId], references: [id])
+  users       User[]
+  tasks       Task[]
+  projects    Project[] @relation("ProjectDepartments")
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("departments")
+}
+
+model Project {
+  id                  String              @id @default(uuid())
+  name                String
+  description         String?
+  status              String              @default("DRAFT") // DRAFT, PLANNING, ACTIVE, COMPLETED, CANCELLED
+  estimatedStartDate  DateTime?
+  estimatedEndDate    DateTime?
+  actualStartDate     DateTime?
+  actualEndDate       DateTime?
+  
+  // Relations
+  createdBy           String
+  creator             User                @relation("ProjectCreator", fields: [createdBy], references: [id])
+  departments         Department[]        @relation("ProjectDepartments")
+  tasks               Task[]
+  phases              ProjectPhase[]
+  participants        ProjectParticipation[]
+  
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  @@map("projects")
+}
+
+model ProjectParticipation {
+  id          String   @id @default(uuid())
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  role        String   @default("PARTICIPANT") // MANAGER, PARTICIPANT
+  
+  joinedAt    DateTime @default(now())
+  leftAt      DateTime?
+  
+  @@unique([projectId, userId])
+  @@map("project_participations")
+}
+
+model ProjectPhase {
+  id                  String    @id @default(uuid())
+  name                String
+  description         String?
+  status              String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  order               Int
+  estimatedDuration   Int?      // in hours
+  actualDuration      Int?      // in hours
+  estimatedStartDate  DateTime?
+  estimatedEndDate    DateTime?
+  actualStartDate     DateTime?
+  actualEndDate       DateTime?
+  
+  // Relations
+  project             Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId           String
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  @@map("project_phases")
+}
+
+model Task {
+  id              String        @id @default(uuid())
+  title           String
+  description     String?
+  startDate       DateTime?
+  endDate         DateTime?
+  status          String        @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  priority        String        @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  estimatedHours  Int?
+  actualHours     Int?
+  
+  // Relations
+  department      Department    @relation(fields: [departmentId], references: [id])
+  departmentId    String
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId       String?
+  createdBy       String
+  creator         User          @relation("TaskCreator", fields: [createdBy], references: [id])
+  assignee        User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId      String?
+  phases          TaskPhase[]
+
+  feedbacks       Feedback[]
+
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("tasks")
+}
+
+model TaskPhase {
+  id              String    @id @default(uuid())
+  name            String
+  description     String?
+  estimatedTime   Int?      // in hours
+  actualTime      Int?      // in hours
+  status          String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  order           Int
+  startDate       DateTime?
+  endDate         DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  
+  // Relations
+  task            Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId          String
+  assignedTo      User?     @relation("TaskPhaseAssignee", fields: [assignedToId], references: [id])
+  assignedToId    String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@map("task_phases")
+}
+
+model Notification {
+  id            String    @id @default(uuid())
+  title         String
+  message       String
+  type          String    @default("GENERAL") // TASK_ASSIGNED, PROJECT_STARTED, DEADLINE_REMINDER, SYSTEM, GENERAL
+  isRead        Boolean   @default(false)
+  relatedId     String?   // ID of related task, project, etc.
+  relatedType   String?   // TASK, PROJECT, USER, etc.
+  
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@map("notifications")
+}
+
+model Feedback {
+  id                String    @id @default(uuid())
+  content           String
+  rating            Int?
+  task              Task?     @relation(fields: [taskId], references: [id])
+  taskId            String?
+  submittedBy       User      @relation("FeedbackSubmitter", fields: [submittedById], references: [id])
+  submittedById     String
+  reviewedBy        User?     @relation("FeedbackReviewer", fields: [reviewedById], references: [id])
+  reviewedById      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("feedbacks")
+}
